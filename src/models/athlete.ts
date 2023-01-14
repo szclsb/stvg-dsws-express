@@ -1,4 +1,4 @@
-import {validate, validateIn, validateName, validateInteger} from "../utils/validation-utils";
+import {validate, validateIn, validateName, validateInteger, required} from "../utils/validation-utils";
 
 export interface Athlete {
     firstName: string;
@@ -12,9 +12,9 @@ export type Sex = typeof sexes[number];
 
 export async function validateAthlete(body: any): Promise<Athlete> {
     return await validate<Athlete>({
-        firstName: validateName(body.firstName),
-        lastName: validateName(body.lastName),
-        sex: validateIn<Sex>(body.sex, sexes),
-        yearOfBirth: validateInteger(body.yearOfBirth, 1900, 2023)
+        firstName: validateName(body.firstName).then(required),
+        lastName: validateName(body.lastName).then(required),
+        sex: validateIn<Sex>(sexes, body.sex).then(required),
+        yearOfBirth: validateInteger(body.yearOfBirth, 1900, 2023).then(required)
     });
 }
