@@ -1,5 +1,6 @@
 import {Validation} from "../models/models";
 import {ValidationError} from "../errors/validation-error";
+import {ObjectId} from "bson";
 
 const stringChecker = new RegExp('^[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+$');
 const textChecker = new RegExp('^[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+(\\s[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+)*$');
@@ -83,6 +84,18 @@ export async function validateNumber(value?: any, min?: number, max?: number): P
     });
 }
 
+export async function validateObjectId(value?: any): Promise<ObjectId | undefined> {
+    return new Promise((resolve, reject) => {
+        if (value === undefined || value === null) {
+            resolve(undefined);
+        } else if (ObjectId.isValid(value)) {
+            resolve(ObjectId.createFromHexString(value));
+        } else {
+            reject(`'${value}' is not an object id`);
+        }
+    });
+}
+
 export async function validateIn<E>(values: any, value?: any): Promise<E | undefined> {
     return new Promise((resolve, reject) => {
         if (value === undefined || value === null) {
@@ -98,6 +111,8 @@ export async function validateIn<E>(values: any, value?: any): Promise<E | undef
 export async function validateArray<E>(values?: Promise<E>[], minSize?: number, maxSize?: number): Promise<E[] | undefined> {
     if (values === undefined || values === null) {
         return Promise.resolve(undefined);
+    } else if (!Array.isArray(values)) {
+        return Promise.reject(`is not an array`);
     } else if (!!minSize && values.length < minSize) {
         return Promise.reject(`must have at least ${minSize} elements`)
     } else if (!!maxSize && values.length > maxSize) {
