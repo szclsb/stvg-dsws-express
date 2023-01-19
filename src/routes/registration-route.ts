@@ -14,7 +14,7 @@ export function initRegistrationRoute(db: Db): Router {
 
     router.post("/", (req, res) => {
         validateRegistration(req.body).then(registration => {
-            // todo validate category
+            // todo validate references
             collection.insertOne(registration).then(insertedId => {
                 res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
             })
