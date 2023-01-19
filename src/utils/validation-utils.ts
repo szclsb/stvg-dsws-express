@@ -1,6 +1,6 @@
 import {Validation} from "../models/models";
 import {ValidationError} from "../errors/validation-error";
-import {ObjectId} from "bson";
+import {DBRef, ObjectId} from "bson";
 
 const stringChecker = new RegExp('^[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+$');
 const textChecker = new RegExp('^[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+(\\s[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+)*$');
@@ -95,6 +95,19 @@ export async function validateObjectId(value?: any): Promise<ObjectId | undefine
         }
     });
 }
+
+export async function validateReference(collectionName: string, value?: any): Promise<DBRef | undefined> {
+    return new Promise((resolve, reject) => {
+        if (value === undefined || value === null) {
+            resolve(undefined);
+        } else if (ObjectId.isValid(value)) {
+            resolve(new DBRef(collectionName, ObjectId.createFromHexString(value)));
+        } else {
+            reject(`'${value}' is not an object id`);
+        }
+    });
+}
+
 
 export async function validateIn<E>(values: any, value?: any): Promise<E | undefined> {
     return new Promise((resolve, reject) => {

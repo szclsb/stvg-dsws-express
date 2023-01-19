@@ -6,11 +6,13 @@ import express, {Request, Router} from "express";
 import {validateArray} from "../utils/validation-utils";
 import {Registration, validateRegistration} from "../models/registration";
 
+
+export const collectionName = 'athletes';
 export const path = '/api/v1/athletes';
 
 export function initAthleteRoute(db: Db): Router {
     const router = express.Router();
-    const collection = db.collection('athletes');
+    const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
         validateAthlete(req.body).then(athlete => collection.insertOne(athlete).then(insertedId => {

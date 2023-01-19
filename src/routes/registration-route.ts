@@ -5,16 +5,20 @@ import {errorCallback} from "../utils/route-utils"
 import express, {Request, Router} from "express";
 import {validateArray} from "../utils/validation-utils";
 
+export const collectionName = 'registrations';
 export const path = '/api/v1/registrations';
 
 export function initRegistrationRoute(db: Db): Router {
     const router = express.Router();
-    const collection = db.collection('registrations');
+    const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
-        validateRegistration(req.body).then(registration => collection.insertOne(registration).then(insertedId => {
-            res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
-        })).catch(errorCallback(res));
+        validateRegistration(req.body).then(registration => {
+            // todo validate category
+            collection.insertOne(registration).then(insertedId => {
+                res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
+            })
+        }).catch(errorCallback(res));
     });
     router.post("/many", (req, res) => {
         validateArray<Registration>(req.body?.map((reg: any) => validateRegistration(reg)))

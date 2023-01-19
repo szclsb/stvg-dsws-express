@@ -4,16 +4,21 @@ import {validateDiscipline} from "../models/discipline";
 import {errorCallback} from "../utils/route-utils"
 import express, {Request, Router} from "express";
 
+export const collectionName = 'disciplines';
 export const path = '/api/v1/disciplines';
 
 export function initDisciplineRoute(db: Db): Router {
     const router = express.Router();
-    const collection = db.collection('disciplines');
+    const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
-        validateDiscipline(req.body).then(discipline => collection.insertOne(discipline).then(insertedId => {
-            res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
-        })).catch(errorCallback(res));
+        validateDiscipline(req.body).then(discipline => {
+
+
+            collection.insertOne(discipline).then(insertedId => {
+                res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
+            })
+        }).catch(errorCallback(res));
     });
     router.get("/", (req, res) => {
         collection.aggregate([]).toArray().then((doc: WithId<Document>[]) => {
