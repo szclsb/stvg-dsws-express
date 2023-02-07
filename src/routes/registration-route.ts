@@ -8,7 +8,7 @@ import {validateArray} from "../utils/validation-utils";
 export const collectionName = 'registrations';
 export const path = '/api/v1/registrations';
 
-export function initRegistrationRoute(db: Db): Router {
+export function init(db: Db): Router {
     const router = express.Router();
     const collection = db.collection(collectionName);
 

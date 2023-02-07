@@ -3,9 +3,9 @@ import {Datasource} from "./datasource";
 import {loadConfig} from "./config";
 import * as json from '../dsws-config.json';
 import bodyParser from "body-parser";
-import {path as athletePath, initAthleteRoute} from "./routes/athlete-route";
-import {path as disciplinePath, initDisciplineRoute} from "./routes/discipline-route";
-import {path as registrationPath, initRegistrationRoute} from "./routes/registration-route";
+import {path as athletePath, init as initAthleteRoute} from "./routes/athlete-route";
+import {path as disciplinePath, init as initDisciplineRoute} from "./routes/discipline-route";
+import {path as registrationPath, init as initRegistrationRoute} from "./routes/registration-route";
 
 const app = express();
 const config = loadConfig(json);

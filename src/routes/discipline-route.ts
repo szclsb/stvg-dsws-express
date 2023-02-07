@@ -7,7 +7,7 @@ import express, {Request, Router} from "express";
 export const collectionName = 'disciplines';
 export const path = '/api/v1/disciplines';
 
-export function initDisciplineRoute(db: Db): Router {
+export function init(db: Db): Router {
     const router = express.Router();
     const collection = db.collection(collectionName);
 

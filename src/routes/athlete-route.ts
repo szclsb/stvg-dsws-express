@@ -10,7 +10,7 @@ import {Registration, validateRegistration} from "../models/registration";
 export const collectionName = 'athletes';
 export const path = '/api/v1/athletes';
 
-export function initAthleteRoute(db: Db): Router {
+export function init(db: Db): Router {
     const router = express.Router();
     const collection = db.collection(collectionName);
 
