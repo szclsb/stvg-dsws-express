@@ -1,27 +1,29 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {validateAthlete} from "../models/athlete";
-import {errorCallback} from "../utils/route-utils"
+import {Registration, validateRegistration} from "../../models/registration";
+import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
-import {validateArray} from "../utils/validation-utils";
-import {Registration, validateRegistration} from "../models/registration";
+import {validateArray} from "../../utils/validation-utils";
+import {validatePlanning} from "../../models/planning";
 
-
-export const collectionName = 'athletes';
-export const path = '/api/v1/athletes';
+export const collectionName = 'plannings';
+export const path = '/api/v1/planning';
 
 export function init(db: Db): Router {
     const router = express.Router();
     const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
-        validateAthlete(req.body).then(athlete => collection.insertOne(athlete).then(insertedId => {
-            res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
-        })).catch(errorCallback(res));
+        validatePlanning(req.body).then(planning => {
+            // todo validate references
+            collection.insertOne(planning).then(insertedId => {
+                res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
+            })
+        }).catch(errorCallback(res));
     });
     router.post("/many", (req, res) => {
-        validateArray<Registration>(req.body?.map((athlete: any) => validateAthlete(athlete)))
-            .then(athletes => collection.insertMany(athletes).then(result => {
+        validateArray<Registration>(req.body?.map((reg: any) => validatePlanning(reg)))
+            .then(plannings => collection.insertMany(plannings).then(result => {
                 res.setHeader('Location', Object.values(result.insertedIds).map(id => `${path}/${id}`)).status(201).send();
             })).catch(errorCallback(res));
     });
@@ -38,11 +40,11 @@ export function init(db: Db): Router {
         }).catch(errorCallback(res));
     });
     router.put("/:id", (req, res) => {
-        validateAthlete(req.body).then(athlete => {
+        validatePlanning(req.body).then(planning => {
             collection.findOneAndUpdate({
                 _id: ObjectID.createFromHexString(req.params.id as string)
             }, {
-                $set: athlete
+                $set: planning
             }).then(() => {
                 res.status(204).send();
             })

@@ -1,31 +1,21 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {Registration, validateRegistration} from "../models/registration";
-import {errorCallback} from "../utils/route-utils"
+import {validateEventConfig} from "../../models/event-config";
+import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
-import {validateArray} from "../utils/validation-utils";
-import {validatePlanning} from "../models/planning";
 
-export const collectionName = 'plannings';
-export const path = '/api/v1/planning';
+
+export const collectionName = 'event-config';
+export const path = '/api/v1/event-config';
 
 export function init(db: Db): Router {
     const router = express.Router();
     const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
-        validatePlanning(req.body).then(planning => {
-            // todo validate references
-            collection.insertOne(planning).then(insertedId => {
-                res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
-            })
-        }).catch(errorCallback(res));
-    });
-    router.post("/many", (req, res) => {
-        validateArray<Registration>(req.body?.map((reg: any) => validatePlanning(reg)))
-            .then(plannings => collection.insertMany(plannings).then(result => {
-                res.setHeader('Location', Object.values(result.insertedIds).map(id => `${path}/${id}`)).status(201).send();
-            })).catch(errorCallback(res));
+        validateEventConfig(req.body).then(eventConfig => collection.insertOne(eventConfig).then(insertedId => {
+            res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
+        })).catch(errorCallback(res));
     });
     router.get("/", (req, res) => {
         collection.aggregate([]).toArray().then((doc: WithId<Document>[]) => {
@@ -40,11 +30,11 @@ export function init(db: Db): Router {
         }).catch(errorCallback(res));
     });
     router.put("/:id", (req, res) => {
-        validatePlanning(req.body).then(planning => {
+        validateEventConfig(req.body).then(eventConfig => {
             collection.findOneAndUpdate({
                 _id: ObjectID.createFromHexString(req.params.id as string)
             }, {
-                $set: planning
+                $set: eventConfig
             }).then(() => {
                 res.status(204).send();
             })

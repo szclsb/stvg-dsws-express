@@ -1,22 +1,30 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {validateDiscipline} from "../models/discipline";
-import {errorCallback} from "../utils/route-utils"
+import {Registration, validateRegistration} from "../../models/registration";
+import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
+import {validateArray} from "../../utils/validation-utils";
 
-export const collectionName = 'disciplines';
-export const path = '/api/v1/disciplines';
+export const collectionName = 'registrations';
+export const path = '/api/v1/registrations';
 
 export function init(db: Db): Router {
     const router = express.Router();
     const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
-        validateDiscipline(req.body).then(discipline => {
-            collection.insertOne(discipline).then(insertedId => {
+        validateRegistration(req.body).then(registration => {
+            // todo validate references
+            collection.insertOne(registration).then(insertedId => {
                 res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
             })
         }).catch(errorCallback(res));
+    });
+    router.post("/many", (req, res) => {
+        validateArray<Registration>(req.body?.map((reg: any) => validateRegistration(reg)))
+            .then(registrations => collection.insertMany(registrations).then(result => {
+                res.setHeader('Location', Object.values(result.insertedIds).map(id => `${path}/${id}`)).status(201).send();
+            })).catch(errorCallback(res));
     });
     router.get("/", (req, res) => {
         collection.aggregate([]).toArray().then((doc: WithId<Document>[]) => {
@@ -31,11 +39,11 @@ export function init(db: Db): Router {
         }).catch(errorCallback(res));
     });
     router.put("/:id", (req, res) => {
-        validateDiscipline(req.body).then(discipline => {
+        validateRegistration(req.body).then(registration => {
             collection.findOneAndUpdate({
                 _id: ObjectID.createFromHexString(req.params.id as string)
             }, {
-                $set: discipline
+                $set: registration
             }).then(() => {
                 res.status(204).send();
             })
