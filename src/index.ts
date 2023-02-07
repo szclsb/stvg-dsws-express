@@ -8,7 +8,10 @@ import {path as disciplinePath, init as initDisciplineRoute} from "./routes/api/
 import {path as registrationPath, init as initRegistrationRoute} from "./routes/api/registration-route";
 import {path as eventConfigPath, init as initEventConfigRoute} from "./routes/api/event-config-route";
 import {path as planningPath, init as initPlanningRoute} from "./routes/api/planning-route";
-import {path as uiPath, init as initUiRoute} from "./routes/web/ui-routes";
+
+import {path as uiPublicPath, init as initUiPublicRoute} from "./routes/web/public-routes";
+import {path as uiAdminPath, init as initUiAdminRoute} from "./routes/web/admin-routes";
+import {path as uiRootPath, init as initUiRootRoute} from "./routes/web/root-routes";
 
 const app = express();
 const config = loadConfig(json);
@@ -31,7 +34,9 @@ datasource.connect(config).then(db => {
     app.use(eventConfigPath, initEventConfigRoute(db));
     app.use(planningPath, initPlanningRoute(db));
 
-    app.use(uiPath, initUiRoute());
+    app.use(uiPublicPath, initUiPublicRoute());
+    app.use(uiAdminPath, initUiAdminRoute());
+    app.use(uiRootPath, initUiRootRoute());
 
     const server = app.listen(config.port, () => {
         console.log(`server started at http://localhost:${config.port}`);
