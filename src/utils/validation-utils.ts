@@ -84,6 +84,21 @@ export async function validateNumber(value?: any, min?: number, max?: number): P
     });
 }
 
+export async function validateDate(value?: any): Promise<Date | undefined> {
+    return new Promise((resolve, reject) => {
+        if (value === undefined || value === null) {
+            resolve(undefined);
+        } else {
+            const m = Date.parse(value as string);
+            if (Number.isNaN(m)) {
+                reject(`'${value}' is not a date`);
+            } else {
+                resolve(new Date(m));
+            }
+        }
+    });
+}
+
 export async function validateObjectId(value?: any): Promise<ObjectId | undefined> {
     return new Promise((resolve, reject) => {
         if (value === undefined || value === null) {
@@ -96,17 +111,17 @@ export async function validateObjectId(value?: any): Promise<ObjectId | undefine
     });
 }
 
-export async function validateReference(collectionName: string, value?: any): Promise<DBRef | undefined> {
-    return new Promise((resolve, reject) => {
-        if (value === undefined || value === null) {
-            resolve(undefined);
-        } else if (ObjectId.isValid(value)) {
-            resolve(new DBRef(collectionName, ObjectId.createFromHexString(value)));
-        } else {
-            reject(`'${value}' is not an object id`);
-        }
-    });
-}
+// export async function validateReference(collectionName: string, value?: any): Promise<DBRef | undefined> {
+//     return new Promise((resolve, reject) => {
+//         if (value === undefined || value === null) {
+//             resolve(undefined);
+//         } else if (ObjectId.isValid(value)) {
+//             resolve(new DBRef(collectionName, ObjectId.createFromHexString(value)));
+//         } else {
+//             reject(`'${value}' is not an object id`);
+//         }
+//     });
+// }
 
 
 export async function validateIn<E>(values: any, value?: any): Promise<E | undefined> {
