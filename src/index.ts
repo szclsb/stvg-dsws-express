@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import {path as athletePath, init as initAthleteRoute} from "./routes/athlete-route";
 import {path as disciplinePath, init as initDisciplineRoute} from "./routes/discipline-route";
 import {path as registrationPath, init as initRegistrationRoute} from "./routes/registration-route";
+import {path as eventConfigPath, init as initEventConfigRoute} from "./routes/event-config-route";
 
 const app = express();
 const config = loadConfig(json);
@@ -24,6 +25,7 @@ datasource.connect(config).then(db => {
     app.use(athletePath, initAthleteRoute(db));
     app.use(disciplinePath, initDisciplineRoute(db));
     app.use(registrationPath, initRegistrationRoute(db));
+    app.use(eventConfigPath, initEventConfigRoute(db));
 
     const server = app.listen(config.port, () => {
         console.log(`server started at http://localhost:${config.port}`);
