@@ -1,22 +1,21 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {validateDiscipline} from "../models/discipline";
+import {validateEventConfig} from "../models/event-config";
 import {errorCallback} from "../utils/route-utils"
 import express, {Request, Router} from "express";
 
-export const collectionName = 'disciplines';
-export const path = '/api/v1/disciplines';
+
+export const collectionName = 'event-config';
+export const path = '/api/v1/event-config';
 
 export function init(db: Db): Router {
     const router = express.Router();
     const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
-        validateDiscipline(req.body).then(discipline => {
-            collection.insertOne(discipline).then(insertedId => {
-                res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
-            })
-        }).catch(errorCallback(res));
+        validateEventConfig(req.body).then(eventConfig => collection.insertOne(eventConfig).then(insertedId => {
+            res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
+        })).catch(errorCallback(res));
     });
     router.get("/", (req, res) => {
         collection.aggregate([]).toArray().then((doc: WithId<Document>[]) => {
@@ -31,11 +30,11 @@ export function init(db: Db): Router {
         }).catch(errorCallback(res));
     });
     router.put("/:id", (req, res) => {
-        validateDiscipline(req.body).then(discipline => {
+        validateEventConfig(req.body).then(eventConfig => {
             collection.findOneAndUpdate({
                 _id: ObjectID.createFromHexString(req.params.id as string)
             }, {
-                $set: discipline
+                $set: eventConfig
             }).then(() => {
                 res.status(204).send();
             })
