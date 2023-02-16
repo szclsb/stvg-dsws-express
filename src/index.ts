@@ -12,6 +12,7 @@ import {path as planningPath, init as initPlanningRoute} from "./routes/api/plan
 import {path as uiPublicPath, init as initUiPublicRoute} from "./routes/web/public-routes";
 import {path as uiAdminPath, init as initUiAdminRoute} from "./routes/web/admin-routes";
 import {path as uiRootPath, init as initUiRootRoute} from "./routes/web/root-routes";
+import * as path from "path";
 
 const app = express();
 const config = loadConfig(json);
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
     next();
 });
 app.set("view engine", "ejs");
+app.use("/static", express.static(path.join(__dirname, "../public")))
 
 datasource.connect(config).then(db => {
     app.use(athletePath, initAthleteRoute(db));
