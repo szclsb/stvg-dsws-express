@@ -15,8 +15,8 @@ export function init(db: Db): Router {
     const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
-        validateAthlete(req.body).then(athlete => collection.insertOne(athlete).then(insertedId => {
-            res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
+        validateAthlete(req.body).then(athlete => collection.insertOne(athlete).then(result => {
+            res.setHeader('Location', `${path}/${result.insertedId}`).status(201).send();
         })).catch(errorCallback(res));
     });
     router.post("/many", (req, res) => {

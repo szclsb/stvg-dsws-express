@@ -13,8 +13,8 @@ export function init(db: Db): Router {
     const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
-        validateEventConfig(req.body).then(eventConfig => collection.insertOne(eventConfig).then(insertedId => {
-            res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
+        validateEventConfig(req.body).then(eventConfig => collection.insertOne(eventConfig).then(result => {
+            res.setHeader('Location', `${path}/${result.insertedId}`).status(201).send();
         })).catch(errorCallback(res));
     });
     router.get("/", (req, res) => {

@@ -13,8 +13,8 @@ export function init(db: Db): Router {
 
     router.post("/", (req, res) => {
         validateDiscipline(req.body).then(discipline => {
-            collection.insertOne(discipline).then(insertedId => {
-                res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
+            collection.insertOne(discipline).then(result => {
+                res.setHeader('Location', `${path}/${result.insertedId}`).status(201).send();
             })
         }).catch(errorCallback(res));
     });

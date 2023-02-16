@@ -15,8 +15,8 @@ export function init(db: Db): Router {
     router.post("/", (req, res) => {
         validateRegistration(req.body).then(registration => {
             // todo validate references
-            collection.insertOne(registration).then(insertedId => {
-                res.setHeader('Location', `${path}/${insertedId}`).status(201).send();
+            collection.insertOne(registration).then(result => {
+                res.setHeader('Location', `${path}/${result.insertedId}`).status(201).send();
             })
         }).catch(errorCallback(res));
     });
