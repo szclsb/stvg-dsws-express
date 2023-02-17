@@ -2,9 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>DSWS Registrierung</title>
+    <title>DSWS | Registrierung</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/styles/main.css">
+    <!--    <script src="https://code.jquery.com/jquery-3.6.3.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/scripts/ejs.min.js"></script>
+    <script src="/static/scripts/public-reg.js"></script>
 </head>
 <body>
-<h1>This is public registration page!</h1>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>Anmeldung</h3>
+            <p>Anmeldung für de schnellst Wasserschlössler des STV Gebenstorf</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Teilnehmer:innen</h4>
+            <div id="participants" class="d-flex flex-column mb-3">
+                <script>
+                     document.querySelector('#participants').innerHTML = participants.map(p => `<div class="container participant">
+                        <div class="row">
+                            <div class="col-4">Vorname:</div>
+                            <div class="col-8">${p.firstName}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">Nachname:</div>
+                            <div class="col-8">${p.lastName}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">Geschlecht:</div>
+                            <div class="col-8">${p.sex === 0 ? 'Mädchen': 'Junge'}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">Jahrgang:</div>
+                            <div class="col-8">${p.yearOfBirth}</div>
+                        </div>
+                     </div>`).join('');
+                </script>
+            </div>
+            <button class="btn btn-primary">Teilnehmer:in hinzufügen</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Gruppen</h4>
+            <div class="d-flex flex-column mb-3">
+                <div class="p-2">Gruppe 1</div>
+                <div class="p-2">Gruppe 2</div>
+                <div class="p-2">Gruppe 3</div>
+            </div>
+            <button class="btn btn-primary">Gruppe hinzufügen</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
