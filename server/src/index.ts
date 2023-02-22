@@ -8,10 +8,6 @@ import {path as disciplinePath, init as initDisciplineRoute} from "./routes/api/
 import {path as registrationPath, init as initRegistrationRoute} from "./routes/api/registration-route";
 import {path as eventConfigPath, init as initEventConfigRoute} from "./routes/api/event-config-route";
 import {path as planningPath, init as initPlanningRoute} from "./routes/api/planning-route";
-
-import {path as uiPublicPath, init as initUiPublicRoute} from "./routes/web/public-routes";
-import {path as uiAdminPath, init as initUiAdminRoute} from "./routes/web/admin-routes";
-import {path as uiRootPath, init as initUiRootRoute} from "./routes/web/root-routes";
 import * as path from "path";
 
 const app = express();
