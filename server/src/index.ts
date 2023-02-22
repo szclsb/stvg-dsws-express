@@ -26,8 +26,9 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE');
     next();
 });
-app.set("view engine", "ejs");
-app.use("/static", express.static(path.join(__dirname, "../public")))
+app.use(express.static(path.join(__dirname, "..", "..", "build")));
+app.use(express.static("public"));
+
 
 datasource.connect(config).then(db => {
     app.use(athletePath, initAthleteRoute(db));
@@ -36,9 +37,10 @@ datasource.connect(config).then(db => {
     app.use(eventConfigPath, initEventConfigRoute(db));
     app.use(planningPath, initPlanningRoute(db));
 
-    app.use(uiPublicPath, initUiPublicRoute());
-    app.use(uiAdminPath, initUiAdminRoute());
-    app.use(uiRootPath, initUiRootRoute());
+    // react frontend
+    app.use((req, res, next) => {
+        res.sendFile(path.join(__dirname, "..", "..", "build", "index.html"));
+    });
 
     const server = app.listen(config.port, () => {
         console.log(`server started at http://localhost:${config.port}`);
