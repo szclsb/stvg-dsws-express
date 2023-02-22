@@ -8,10 +8,6 @@ import {path as disciplinePath, init as initDisciplineRoute} from "./routes/api/
 import {path as registrationPath, init as initRegistrationRoute} from "./routes/api/registration-route";
 import {path as eventConfigPath, init as initEventConfigRoute} from "./routes/api/event-config-route";
 import {path as planningPath, init as initPlanningRoute} from "./routes/api/planning-route";
-
-import {path as uiPublicPath, init as initUiPublicRoute} from "./routes/web/public-routes";
-import {path as uiAdminPath, init as initUiAdminRoute} from "./routes/web/admin-routes";
-import {path as uiRootPath, init as initUiRootRoute} from "./routes/web/root-routes";
 import * as path from "path";
 
 const app = express();
@@ -26,8 +22,9 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE');
     next();
 });
-app.set("view engine", "ejs");
-app.use("/static", express.static(path.join(__dirname, "../public")))
+app.use(express.static(path.join(__dirname, "..", "..", "build")));
+app.use(express.static("public"));
+
 
 datasource.connect(config).then(db => {
     app.use(athletePath, initAthleteRoute(db));
@@ -36,9 +33,10 @@ datasource.connect(config).then(db => {
     app.use(eventConfigPath, initEventConfigRoute(db));
     app.use(planningPath, initPlanningRoute(db));
 
-    app.use(uiPublicPath, initUiPublicRoute());
-    app.use(uiAdminPath, initUiAdminRoute());
-    app.use(uiRootPath, initUiRootRoute());
+    // react frontend
+    app.use((req, res, next) => {
+        res.sendFile(path.join(__dirname, "..", "..", "build", "index.html"));
+    });
 
     const server = app.listen(config.port, () => {
         console.log(`server started at http://localhost:${config.port}`);
