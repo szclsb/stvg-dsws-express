@@ -1,11 +1,11 @@
 import './App.css';
 
-function App() {
+function Register() {
   return (
     <div className="App">
-      <div>Test 2</div>
+      <h3>Anmeldung</h3>
     </div>
   );
 }
 
-export default App;
+export default Register;

@@ -5,8 +5,12 @@ import {
     RouterProvider,
 } from "react-router-dom";
 import './index.css';
-import App from './App';
+import App from './views/App';
 import reportWebVitals from './reportWebVitals';
+import Event from "./views/Event";
+import Recording from "./views/Recording";
+import Register from "./views/Register";
+import Results from "./views/Results";
 
 const router = createBrowserRouter([
     {
@@ -14,8 +18,20 @@ const router = createBrowserRouter([
         element: <App />,
     },
     {
-        path: "/test",
-        element: <div>Other testpage</div>
+        path: "/event",
+        element: <Event />
+    },
+    {
+        path: "/admin",
+        element: <Recording />
+    },
+    {
+        path: "/register",
+        element: <Register />
+    },
+    {
+        path: "/results",
+        element: <Results />
     }
 ]);
 
