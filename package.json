@@ -2,13 +2,11 @@
   "name": "dsws",
   "version": "1.0.0",
   "scripts": {
-    "clean": "rimraf dist",
-    "copy-files": "copyfiles -u 1 public/**/* dist/public",
+    "clean": "rimraf build",
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "build": "npm run clean && tsc",
-    "postbuild": "npm run copy-files",
     "prestart": "npm run build",
-    "start": "node ./dist/src/index.js",
+    "start": "node ./build/src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
