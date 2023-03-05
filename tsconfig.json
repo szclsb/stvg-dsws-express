@@ -3,6 +3,7 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "target": "es6",
+    "jsx": "react",
     "noImplicitAny": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -16,6 +17,7 @@
     }
   },
   "include": [
+    "./src/**/*",
     "./server/**/*"
   ],
   "exclude": ["node_modules", "**/__tests__/*"]

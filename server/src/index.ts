@@ -10,6 +10,7 @@ import {path as eventConfigPath, init as initEventConfigRoute} from "./routes/ap
 import {path as planningPath, init as initPlanningRoute} from "./routes/api/planning-route";
 import * as path from "path";
 
+const cwd = path.resolve();
 const app = express();
 const config = loadConfig(json);
 const datasource = new Datasource();
@@ -22,8 +23,8 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE');
     next();
 });
-app.use(express.static(path.join(__dirname, "..", "..", "build")));
-app.use(express.static("public"));
+app.use(express.static(path.join(cwd, "build")));
+app.use(express.static(path.join(cwd, "public")));
 
 
 datasource.connect(config).then(db => {
@@ -35,7 +36,7 @@ datasource.connect(config).then(db => {
 
     // react frontend
     app.use((req, res, next) => {
-        res.sendFile(path.join(__dirname, "..", "..", "build", "index.html"));
+        res.sendFile(path.join(cwd, "build", "index.html"));
     });
 
     const server = app.listen(config.port, () => {
