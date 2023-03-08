@@ -2,25 +2,17 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import {EventConfig} from "../../server/src/models/event-config";
 import ConfigComponent from "../components/ConfigComponent";
+import {Client, Method} from "../client";
 
-async function loadData(setConfig: (config: EventConfig[]) => void) {
-    fetch("/api/v1/event-config", {
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
-        method: "GET"
-    })
-        .then(res => res.json())
-        .then(data => setConfig(data as EventConfig[]))
-        .catch(err => console.warn(err));
-}
+const client = new Client("/api/v1/event-config");
 
 function Event() {
     const [configs, setConfigs] = useState<EventConfig[]>(undefined);
 
     useEffect(() => {
-        loadData(setConfigs);
+        client.fetch<EventConfig[]>(Method.GET)
+            .then(data => setConfigs(data))
+            .catch(err => console.warn(err));
     });
 
     return (
