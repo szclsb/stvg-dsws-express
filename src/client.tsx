@@ -15,7 +15,8 @@ export class Client {
     }
 
     async fetch<T>(method: Method, url?: string, body?: any): Promise<T> {
-        return fetch(!url ? this.rootUrl : `${this.rootUrl}/${url}`, {
+        const effectiveUrl = !url ? this.rootUrl : `${this.rootUrl}/${url}`
+        return fetch(effectiveUrl, {
             headers: {
                 "Accept": "application/json",
                 "Content-Type": "application/json"

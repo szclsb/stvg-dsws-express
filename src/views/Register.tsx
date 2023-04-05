@@ -1,11 +1,11 @@
 import React from 'react';
-import './App.css';
+import {Stack} from "@mui/material";
 
 function Register() {
   return (
-    <div className="App">
+    <Stack>
       <h3>Anmeldung</h3>
-    </div>
+    </Stack>
   );
 }
 

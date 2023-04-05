@@ -1,11 +1,11 @@
 import React from 'react';
-import './App.css';
+import {Stack} from "@mui/material";
 
 function Results() {
     return (
-        <div className="App">
+        <Stack>
             <h3>Resultate</h3>
-        </div>
+        </Stack>
     );
 }
 

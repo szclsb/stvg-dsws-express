@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
-import './App.css';
+import {Stack} from "@mui/material";
 
 function App() {
     return (
-        <div className="App">
+        <Stack>
             <h3>Home</h3>
-        </div>
+        </Stack>
     );
 }
 

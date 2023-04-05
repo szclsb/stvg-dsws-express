@@ -1,11 +1,11 @@
 import React from 'react';
-import './App.css';
+import {Stack} from "@mui/material";
 
 function Recording() {
     return (
-        <div className="App">
+        <Stack>
             <h3>Zeiterfassung</h3>
-        </div>
+        </Stack>
     );
 }
 
