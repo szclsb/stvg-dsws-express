@@ -20,14 +20,16 @@ export function init(db: Db): Router {
     });
     router.get("/", (req, res) => {
         collection.aggregate([]).toArray().then((doc: WithId<Document>[]) => {
-            res.status(200).json(doc)
+            res.status(200)
+                .json(doc)
         }).catch(errorCallback(res));
     });
     router.get("/:id", (req, res) => {
         collection.findOne({
             _id: ObjectID.createFromHexString(req.params.id as string)
         }).then((doc: WithId<Document>) => {
-            res.status(200).json(doc)
+            res.status(200)
+                .json(doc)
         }).catch(errorCallback(res));
     });
     router.put("/:id", (req, res) => {

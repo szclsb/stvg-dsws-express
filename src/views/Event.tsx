@@ -19,50 +19,34 @@ function Event() {
         setValue(newValue);
     };
 
-    let content = <div>Invalid tab</div>;
-    switch (value) {
-        case 0: {
-            content = <ConfigTab />;
-            break;
-        }
-        case 1: {
-            content =  <PlanningTab />;
-            break;
-        }
-    }
     return (
         <Stack spacing={2}>
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 <Tab label="Konfiguration"/>
                 <Tab label="Planung"/>
             </Tabs>
-            {content}
+            <ConfigTab active={value === 0} />
+            <PlanningTab active={value === 1} />
         </Stack>
     );
 }
 
-interface ConfigTabProps {
-    config: EventConfig;
-    disciplines: Discipline[];
-}
-
-function ConfigTab() {
+function ConfigTab(props: {active: boolean}) {
     const [config, setConfig] = useState<EventConfig>(undefined);
     const [disciplines, setDiscipline] = useState<Discipline[]>(undefined);
 
     useEffect(() => {
-        eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
-            .then(data =>  setConfig(data))
-            .then(() => console.log('set'))
-            .catch(err => console.warn(err));
-        disciplineClient.fetch<Discipline[]>(Method.GET)
-            .then(data => setDiscipline(data))
-            .catch(err => console.warn(err));
-    });
+        if (props.active) {
+            eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
+                .then(data => setConfig(data))
+                .catch(err => console.warn(err));
+            disciplineClient.fetch<Discipline[]>(Method.GET)
+                .then(data => setDiscipline(data))
+                .catch(err => console.warn(err));
+        }
+    }, [props]);
 
-    console.log(config)
-
-    return (
+    return !props.active ? undefined : (
         <Stack spacing={2}>
             <h3>Anlass Konfiguration</h3>
             <TextField label="Name" defaultValue="" value={config?.eventName} InputLabelProps={{
@@ -99,13 +83,13 @@ async function onAutoPlanning() {
     await planningClient.fetch(Method.POST, "auto");
 }
 
-function PlanningTab() {
+function PlanningTab(props: {active: boolean}) {
     const plannings: [Planning, Athlete[], string?][] = [
         [{track: 1, startTime: {hour: 10, minute: 0}, endTime: {hour: 10, minute: 10}, registrationId: null},
             [{firstName: 'Claudio', lastName: 'Seitz', sex: 'MALE', yearOfBirth: 1993}]]
     ];
 
-    return (
+    return !props.active ? undefined : (
         <Stack spacing={2}>
             <h3>Anlass Planung</h3>
             <div className="scroll-area-x">

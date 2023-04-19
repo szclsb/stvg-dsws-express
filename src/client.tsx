@@ -23,6 +23,11 @@ export class Client {
             },
             method,
             body
-        }).then(res => res.bodyUsed ? res.json() as T: undefined)
+        }).then(res => {
+            const lengthStr =  res.headers.get("Content-Length")
+            const length = lengthStr != null ? Number.parseInt(lengthStr, 10) : 0;
+            const contentType = res.headers.get("Content-Type")
+            return length > 0 && contentType.startsWith("application/json") ? res.json() as T: undefined
+        })
     }
 }
