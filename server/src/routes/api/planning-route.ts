@@ -5,6 +5,7 @@ import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
 import {validateArray} from "../../utils/validation-utils";
 import {validatePlanning} from "../../models/planning";
+import {collectionName as registrationCollectionName} from "./registration-route"
 
 export const collectionName = 'plannings';
 export const path = '/api/v1/planning';
@@ -57,6 +58,16 @@ export function init(db: Db): Router {
             res.status(204).send();
         }).catch(errorCallback(res));
     });
+    router.post("/auto", (req, res) => {
+        // auto planning
+        const regCollection = db.collection(registrationCollectionName);
+        const registration = regCollection.aggregate([]);
+
+        // todo planning per discipline category.
+
+        res.status(204).send();
+    });
+
     console.debug(`initialized route ${path}`);
     return router;
 }

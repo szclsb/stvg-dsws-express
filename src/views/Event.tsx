@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {EventConfig} from "../../server/src/models/event-config";
 import {Client, Method} from "../client";
-import {Collapse, List, ListItem, ListItemText, Stack, Tab, Tabs, TextField} from "@mui/material";
+import {Button, Collapse, List, ListItem, ListItemText, Stack, Tab, Tabs, TextField} from "@mui/material";
 import {Discipline} from "../../server/src/models/discipline";
 import {Planning} from "../../server/src/models/planning";
 import {Athlete} from "../../server/src/models/athlete";
@@ -10,6 +10,41 @@ import './main.css';
 
 const eventClient = new Client("/api/v1/event-config");
 const disciplineClient = new Client("/api/v1/disciplines");
+const planningClient = new Client("/api/v1/planning");
+
+function Event() {
+    const [value, setValue] = React.useState(0);
+
+    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+        setValue(newValue);
+    };
+
+    let content = <div>Invalid tab</div>;
+    switch (value) {
+        case 0: {
+            content = <ConfigTab />;
+            break;
+        }
+        case 1: {
+            content =  <PlanningTab />;
+            break;
+        }
+    }
+    return (
+        <Stack spacing={2}>
+            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                <Tab label="Konfiguration"/>
+                <Tab label="Planung"/>
+            </Tabs>
+            {content}
+        </Stack>
+    );
+}
+
+interface ConfigTabProps {
+    config: EventConfig;
+    disciplines: Discipline[];
+}
 
 function ConfigTab() {
     const [config, setConfig] = useState<EventConfig>(undefined);
@@ -17,21 +52,15 @@ function ConfigTab() {
 
     useEffect(() => {
         eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
-            .then(data => setConfig(data))
+            .then(data =>  setConfig(data))
+            .then(() => console.log('set'))
             .catch(err => console.warn(err));
         disciplineClient.fetch<Discipline[]>(Method.GET)
             .then(data => setDiscipline(data))
             .catch(err => console.warn(err));
-    }, []);
+    });
 
-    useEffect(() => {
-        eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
-            .then(data => setConfig(data))
-            .catch(err => console.warn(err));
-        disciplineClient.fetch<Discipline[]>(Method.GET)
-            .then(data => setDiscipline(data))
-            .catch(err => console.warn(err));
-    }, []);
+    console.log(config)
 
     return (
         <Stack spacing={2}>
@@ -66,6 +95,10 @@ function ConfigTab() {
     );
 }
 
+async function onAutoPlanning() {
+    await planningClient.fetch(Method.POST, "auto");
+}
+
 function PlanningTab() {
     const plannings: [Planning, Athlete[], string?][] = [
         [{track: 1, startTime: {hour: 10, minute: 0}, endTime: {hour: 10, minute: 10}, registrationId: null},
@@ -78,35 +111,7 @@ function PlanningTab() {
             <div className="scroll-area-x">
                 <Tracks topHeaderHeight={2} leftHeaderWidth={6} itemHeight={6} itemWidth={12} separator={0.1} tracks={4} plannings={plannings} />
             </div>
-        </Stack>
-    );
-}
-
-function Event() {
-    const [value, setValue] = React.useState(0);
-
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-    };
-
-    let content = <div>Invalid tab</div>;
-    switch (value) {
-        case 0: {
-            content = <ConfigTab />;
-            break;
-        }
-        case 1: {
-            content =  <PlanningTab />;
-            break;
-        }
-    }
-    return (
-        <Stack spacing={2}>
-            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                <Tab label="Konfiguration"/>
-                <Tab label="Planung"/>
-            </Tabs>
-            {content}
+            <Button onClick={onAutoPlanning} variant="contained" color="primary">Automatisch planen</Button>
         </Stack>
     );
 }

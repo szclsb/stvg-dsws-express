@@ -23,6 +23,6 @@ export class Client {
             },
             method,
             body
-        }).then(res => res?.json() as T)
+        }).then(res => res.bodyUsed ? res.json() as T: undefined)
     }
 }
