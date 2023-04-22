@@ -4,13 +4,13 @@ import {Collapse, List, ListItem, ListItemText, Stack, Tab, Tabs, TextField} fro
 import React from "react";
 import AthleteItem from "./AthleteItem";
 import AthleteGroupItem from "./AthleteGroupItem";
+import "../main.css"
 
 interface TrackProperties {
     topHeaderHeight: number,
     leftHeaderWidth: number,
     itemHeight: number,
     itemWidth: number,
-    separator: number,
     tracks: number;
     plannings: [Planning, Athlete[], string?][];
 }
@@ -46,58 +46,40 @@ function Tracks(props: TrackProperties) {
     const width = props.leftHeaderWidth + timesCount * (props.itemWidth);
     const height = props.topHeaderHeight + props.tracks * (props.itemHeight);
     return (
-        <div style={{
-            position: "relative",
+        <div className="content-area" style={{
             width: em(width),
-            height: em(height + props.separator / 2)
+            height: `calc(${em(height)} + var(--app-separator-width) / 2)`
         }}>
-            {timesSeq.map((t, i) => <div style={{
-                position: "absolute",
+            {timesSeq.map((t, i) => <div className="planning-header-top" style={{
                 top: em(0),
-                left: em(props.leftHeaderWidth - 2 + (props.itemWidth * i)),
+                left: `calc(${em(props.leftHeaderWidth + (props.itemWidth * i))} - var(--app-planning-time-width) / 2)`,
                 height: em(props.topHeaderHeight),
-                textAlign: "center",
-                width: "4em"
             }}>{pad(t.hour, 2)}:{pad(t.minute, 2)}</div>)}
-            {seq(props.tracks).map(i => <div style={{
-                position: "absolute",
+            {seq(props.tracks).map(i => <div className="planning-header-left" style={{
                 top: em(props.topHeaderHeight + (props.itemHeight) * (i - 1)),
                 left: em(0),
                 height: em(props.itemHeight),
                 width: em(props.leftHeaderWidth),
                 lineHeight: em(props.itemHeight)
             }}>Bahn {i}</div>)}
-            {seq(props.tracks + 1).map(i => <div style={{
-                position: "absolute",
-                top: em(props.topHeaderHeight - props.separator / 2 + (props.itemHeight) * (i - 1)),
+            {seq(props.tracks + 1).map(i => <div className="hline" style={{
+                top: `calc(${em(props.topHeaderHeight + (props.itemHeight) * (i - 1))} - var(--app-separator-width) / 2)`,
                 left: em(0),
                 width: em(width),
-                height: em(props.separator),
-                backgroundColor: "black"
             }}/>)}
-            {timesSeq.map((_, i) => <div style={{
-                position: "absolute",
+            {timesSeq.map((_, i) => <div className="vline" style={{
                 top: em(props.topHeaderHeight - 0.5),
-                left: em(props.leftHeaderWidth - props.separator / 2 + (props.itemWidth) * i),
-                width: em(props.separator),
+                left: `calc(${em(props.leftHeaderWidth + (props.itemWidth) * i)} - var(--app-separator-width) / 2)`,
                 height: em(height - props.topHeaderHeight + 0.5),
-                backgroundColor: "black"
             }}/>)}
             {props.plannings.map(p => {
                 const left = props.leftHeaderWidth + getTimeM(p[0].startTime) * props.itemWidth;
                 const planningWidth = props.leftHeaderWidth + getTimeM(p[0].endTime) * props.itemWidth - left;
-
-                console.log(getTimeM(p[0].startTime));
-                console.log(getTimeM(p[0].endTime));
-                return (<div style={{
-                    position: "absolute",
+                return (<div className="planning-item" style={{
                     top: em(props.topHeaderHeight + (props.itemHeight * (p[0].track - 1))),
                     left: em(left),
-                    width: em(planningWidth - props.separator),
-                    height: em(props.itemHeight - props.separator),
-                    backgroundColor: "lightblue",
-                    borderRadius: "1em",
-                    margin: em(props.separator / 2)
+                    width: `calc(${em(planningWidth)} - var(--app-separator-width))`,
+                    height: `calc(${em(props.itemHeight)} - var(--app-separator-width))`,
                 }}>{createItem(p[1], p[2])}</div>);
             })}
         </div>
