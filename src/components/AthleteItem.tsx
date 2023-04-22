@@ -1,11 +1,15 @@
-import {Athlete} from "../models/athlete";
+import {Athlete, Sex} from "../models/athlete";
 import {Stack} from "@mui/material";
 import React from "react";
 
-function AthleteItem(props: {athlete: Athlete}) {
+function displaySex(sex: Sex): string {
+    return sex === "FEMALE" ? "W" : sex === "MALE" ? "M" : undefined;
+}
+
+function AthleteItem(props: {athlete: Athlete, age: number}) {
     return !props ? undefined : (<Stack>
         <div>{props.athlete.firstName} {props.athlete.lastName}</div>
-        <div>{props.athlete.sex} / {props.athlete.yearOfBirth}</div>
+        <div>{displaySex(props.athlete.sex)} / {props.age}</div>
     </Stack>)
 }
 

@@ -84,9 +84,9 @@ async function onAutoPlanning() {
 }
 
 function PlanningTab(props: {active: boolean}) {
-    const plannings: [Planning, Athlete[], string?][] = [
+    const plannings: [Planning, {athlete: Athlete, age: number}[], string?][] = [
         [{track: 1, startTime: {hour: 10, minute: 0}, endTime: {hour: 10, minute: 10}, registrationId: null},
-            [{firstName: 'Claudio', lastName: 'Seitz', sex: 'MALE', yearOfBirth: 1993}]]
+            [{athlete: {firstName: 'Claudio', lastName: 'Seitz', sex: 'MALE', yearOfBirth: 1993}, age: 30}]]
     ];
 
     return !props.active ? undefined : (

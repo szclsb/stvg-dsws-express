@@ -12,7 +12,7 @@ interface TrackProperties {
     itemHeight: number,
     itemWidth: number,
     tracks: number;
-    plannings: [Planning, Athlete[], string?][];
+    plannings: [Planning, {athlete: Athlete, age: number}[], string?][];
 }
 
 function em(value: number): string {
@@ -86,8 +86,8 @@ function Tracks(props: TrackProperties) {
     );
 }
 
-function createItem(athletes: Athlete[], groupName?: string): JSX.Element {
-    return !groupName ? <AthleteItem athlete={athletes[0]}/> :
+function createItem(athletes: {athlete: Athlete, age: number}[], groupName?: string): JSX.Element {
+    return !groupName ? <AthleteItem athlete={athletes[0].athlete} age={athletes[0].age}/> :
         <AthleteGroupItem groupName={groupName} athletes={athletes}/>
 }
 
