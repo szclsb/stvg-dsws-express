@@ -1,3 +1,6 @@
+import {Time} from "./planning";
+import {Athlete} from "./athlete";
+
 export type WithID<T> = T & {
     _id: string;
 }

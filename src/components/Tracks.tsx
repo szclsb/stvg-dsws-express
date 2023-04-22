@@ -1,9 +1,8 @@
-import {dailyMinutes, Planning, Time} from "../models/planning";
-import {Athlete} from "../models/athlete";
-import {Collapse, List, ListItem, ListItemText, Stack, Tab, Tabs, TextField} from "@mui/material";
 import React from "react";
 import AthleteItem from "./AthleteItem";
 import AthleteGroupItem from "./AthleteGroupItem";
+import {dailyMinutes, Time} from "../models/planning";
+import {RegistrationPlanning} from "../models/dto";
 import "../main.css"
 
 interface TrackProperties {
@@ -12,7 +11,7 @@ interface TrackProperties {
     itemHeight: number,
     itemWidth: number,
     tracks: number;
-    plannings: [Planning, {athlete: Athlete, age: number}[], string?][];
+    plannings: RegistrationPlanning[];
 }
 
 function em(value: number): string {
@@ -50,45 +49,60 @@ function Tracks(props: TrackProperties) {
             width: em(width),
             height: `calc(${em(height)} + var(--app-separator-width) / 2)`
         }}>
-            {timesSeq.map((t, i) => <div className="planning-header-top" style={{
-                top: em(0),
-                left: `calc(${em(props.leftHeaderWidth + (props.itemWidth * i))} - var(--app-planning-time-width) / 2)`,
-                height: em(props.topHeaderHeight),
-            }}>{pad(t.hour, 2)}:{pad(t.minute, 2)}</div>)}
-            {seq(props.tracks).map(i => <div className="planning-header-left" style={{
-                top: em(props.topHeaderHeight + (props.itemHeight) * (i - 1)),
-                left: em(0),
-                height: em(props.itemHeight),
-                width: em(props.leftHeaderWidth),
-                lineHeight: em(props.itemHeight)
-            }}>Bahn {i}</div>)}
-            {seq(props.tracks + 1).map(i => <div className="hline" style={{
-                top: `calc(${em(props.topHeaderHeight + (props.itemHeight) * (i - 1))} - var(--app-separator-width) / 2)`,
-                left: em(0),
-                width: em(width),
-            }}/>)}
-            {timesSeq.map((_, i) => <div className="vline" style={{
-                top: em(props.topHeaderHeight - 0.5),
-                left: `calc(${em(props.leftHeaderWidth + (props.itemWidth) * i)} - var(--app-separator-width) / 2)`,
-                height: em(height - props.topHeaderHeight + 0.5),
-            }}/>)}
+            {timesSeq.map((t, i) => {
+                const left = props.leftHeaderWidth + (props.itemWidth * i);
+                return (<div className="planning-header-top" style={{
+                    top: em(0),
+                    left: `calc(${em(left)} - var(--app-planning-time-width) / 2)`,
+                    height: em(props.topHeaderHeight),
+                }}>{pad(t.hour, 2)}:{pad(t.minute, 2)}</div>);
+            })}
+            {seq(props.tracks).map(i => {
+                const top = props.topHeaderHeight + (props.itemHeight) * (i - 1);
+                return (<div className="planning-header-left" style={{
+                    top: em(top),
+                    left: em(0),
+                    height: em(props.itemHeight),
+                    width: em(props.leftHeaderWidth),
+                    lineHeight: em(props.itemHeight)
+                }}>Bahn {i}</div>);
+            })}
+            {seq(props.tracks + 1).map(i => {
+                const top = props.topHeaderHeight + (props.itemHeight) * (i - 1);
+                return (<div className="hline" style={{
+                    top: `calc(${em(top)} - var(--app-separator-width) / 2)`,
+                    left: em(0),
+                    width: em(width),
+                }}/>);
+            })}
+            {timesSeq.map((_, i) => {
+                const left = props.leftHeaderWidth + (props.itemWidth) * i;
+                const length = height - props.topHeaderHeight;
+                return (<div className="vline" style={{
+                    top: `calc(${em(props.topHeaderHeight)} - var(--app-planning-space))`,
+                    left: `calc(${em(left)} - var(--app-separator-width) / 2)`,
+                    height: `calc(${em(length)} + var(--app-planning-space))`
+                }}/>);
+            })}
             {props.plannings.map(p => {
-                const left = props.leftHeaderWidth + getTimeM(p[0].startTime) * props.itemWidth;
-                const planningWidth = props.leftHeaderWidth + getTimeM(p[0].endTime) * props.itemWidth - left;
+                const top = props.topHeaderHeight + (props.itemHeight * (p.beginTrack - 1));
+                const left = props.leftHeaderWidth + getTimeM(p.startTime) * props.itemWidth;
+                const planningWidth = props.leftHeaderWidth + getTimeM(p.endTime) * props.itemWidth - left;
+                const planningHeight = props.itemHeight * (p.endTrack - p.beginTrack + 1);
                 return (<div className="planning-item" style={{
-                    top: em(props.topHeaderHeight + (props.itemHeight * (p[0].track - 1))),
+                    top: em(top),
                     left: em(left),
                     width: `calc(${em(planningWidth)} - var(--app-separator-width))`,
-                    height: `calc(${em(props.itemHeight)} - var(--app-separator-width))`,
-                }}>{createItem(p[1], p[2])}</div>);
+                    height: `calc(${em(planningHeight)} - var(--app-separator-width))`,
+                }}>{createItem(p)}</div>);
             })}
         </div>
     );
 }
 
-function createItem(athletes: {athlete: Athlete, age: number}[], groupName?: string): JSX.Element {
-    return !groupName ? <AthleteItem athlete={athletes[0].athlete} age={athletes[0].age}/> :
-        <AthleteGroupItem groupName={groupName} athletes={athletes}/>
+function createItem(p: RegistrationPlanning): JSX.Element {
+    return !p.groupName ? <AthleteItem planning={p}/> :
+        <AthleteGroupItem planning={p}/>
 }
 
 export default Tracks;

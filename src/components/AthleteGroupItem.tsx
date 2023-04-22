@@ -1,11 +1,12 @@
 import {Athlete} from "../models/athlete";
 import {Stack} from "@mui/material";
 import React from "react";
+import {RegistrationPlanning} from "../models/dto";
 
-function AthleteGroupItem(props: {groupName: string, athletes: {athlete: Athlete, age: number}[]}) {
+function AthleteGroupItem(props: {planning: RegistrationPlanning}) {
     // todo show athletes as overlay
     return !props ? undefined : (<Stack>
-        <div>{props.groupName}</div>
+        <div>{props.planning.groupName}</div>
     </Stack>)
 }
 

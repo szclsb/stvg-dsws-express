@@ -7,6 +7,7 @@ import {Planning} from "../models/planning";
 import {Athlete} from "../models/athlete";
 import Tracks from "../components/Tracks";
 import '../main.css';
+import {RegistrationPlanning} from "../models/dto";
 
 const eventClient = new Client("/api/v1/event-config");
 const disciplineClient = new Client("/api/v1/disciplines");
@@ -25,13 +26,13 @@ function Event() {
                 <Tab label="Konfiguration"/>
                 <Tab label="Planung"/>
             </Tabs>
-            <ConfigTab active={value === 0} />
-            <PlanningTab active={value === 1} />
+            <ConfigTab active={value === 0}/>
+            <PlanningTab active={value === 1}/>
         </Stack>
     );
 }
 
-function ConfigTab(props: {active: boolean}) {
+function ConfigTab(props: { active: boolean }) {
     const [config, setConfig] = useState<EventConfig>(undefined);
     const [disciplines, setDiscipline] = useState<Discipline[]>(undefined);
 
@@ -83,17 +84,36 @@ async function onAutoPlanning() {
     await planningClient.fetch(Method.POST, "auto");
 }
 
-function PlanningTab(props: {active: boolean}) {
-    const plannings: [Planning, {athlete: Athlete, age: number}[], string?][] = [
-        [{track: 1, startTime: {hour: 10, minute: 0}, endTime: {hour: 10, minute: 10}, registrationId: null},
-            [{athlete: {firstName: 'Claudio', lastName: 'Seitz', sex: 'MALE', yearOfBirth: 1993}, age: 30}]]
+function PlanningTab(props: { active: boolean }) {
+    const plannings: RegistrationPlanning[] = [
+        {
+            disciplineName: "test",
+            categoryName: undefined,
+            beginTrack: 1,
+            endTrack: 1,
+            startTime: {hour: 10, minute: 0},
+            endTime: {hour: 10, minute: 10},
+            groupName: undefined,
+            participants: [
+                {
+                    athlete: {
+                        firstName: 'Claudio',
+                        lastName: 'Seitz',
+                        sex: 'MALE',
+                        yearOfBirth: 1993
+                    },
+                    age: 30
+                }
+            ]
+        }
     ];
 
     return !props.active ? undefined : (
         <Stack spacing={2}>
             <h3>Anlass Planung</h3>
             <div className="scroll-area-x">
-                <Tracks topHeaderHeight={2} leftHeaderWidth={6} itemHeight={6} itemWidth={12} tracks={4} plannings={plannings} />
+                <Tracks topHeaderHeight={2} leftHeaderWidth={6} itemHeight={6} itemWidth={12} tracks={4}
+                        plannings={plannings}/>
             </div>
             <Button onClick={onAutoPlanning} variant="contained" color="primary">Automatisch planen</Button>
         </Stack>
