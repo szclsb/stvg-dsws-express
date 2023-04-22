@@ -1,4 +1,4 @@
-import {validate, validateInteger, required, validateText} from "../utils/validation-utils";
+import {validate, validateInteger, required, validateText} from "../validation/validation-utils";
 
 export interface EventConfig {
     eventName: string;

@@ -1,5 +1,5 @@
 import {Validation} from "../models/models";
-import {ValidationError} from "../errors/validation-error";
+import {ValidationError} from "./validation-error";
 import {DBRef, ObjectId} from "bson";
 
 const stringChecker = new RegExp('^[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+$');

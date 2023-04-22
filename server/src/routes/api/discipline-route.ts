@@ -1,6 +1,6 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {validateDiscipline} from "../../models/discipline";
+import {validateDiscipline} from "../../../../src/models/discipline";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
 

@@ -1,6 +1,6 @@
 import {Request, Response, Router} from "express";
 import {HttpError} from "../errors/http-error";
-import {ValidationError} from "../errors/validation-error";
+import {ValidationError} from "../../../src/validation/validation-error";
 
 export function errorCallback(res: Response): (error?: any) => any {
     return error => {

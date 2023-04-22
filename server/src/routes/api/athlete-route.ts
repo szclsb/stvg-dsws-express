@@ -1,10 +1,10 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {validateAthlete} from "../../models/athlete";
+import {validateAthlete} from "../../../../src/models/athlete";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
-import {validateArray} from "../../utils/validation-utils";
-import {Registration, validateRegistration} from "../../models/registration";
+import {validateArray} from "../../../../src/validation/validation-utils";
+import {Registration, validateRegistration} from "../../../../src/models/registration";
 
 
 export const collectionName = 'athletes';

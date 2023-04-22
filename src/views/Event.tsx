@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {EventConfig} from "../../server/src/models/event-config";
+import {EventConfig} from "../models/event-config";
 import {Client, Method} from "../client";
 import {Button, Collapse, List, ListItem, ListItemText, Stack, Tab, Tabs, TextField} from "@mui/material";
-import {Discipline} from "../../server/src/models/discipline";
-import {Planning} from "../../server/src/models/planning";
-import {Athlete} from "../../server/src/models/athlete";
+import {Discipline} from "../models/discipline";
+import {Planning} from "../models/planning";
+import {Athlete} from "../models/athlete";
 import Tracks from "../components/Tracks";
 import './main.css';
 

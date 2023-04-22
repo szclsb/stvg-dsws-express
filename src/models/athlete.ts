@@ -1,4 +1,4 @@
-import {validate, validateIn, validateString, validateInteger, required, validateText} from "../utils/validation-utils";
+import {validate, validateIn, validateString, validateInteger, required, validateText} from "../validation/validation-utils";
 
 export interface Athlete {
     firstName: string;

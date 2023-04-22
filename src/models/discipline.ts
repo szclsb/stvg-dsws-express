@@ -7,7 +7,7 @@ import {
     validateInteger,
     validateString,
     validateText
-} from "../utils/validation-utils";
+} from "../validation/validation-utils";;
 
 export interface Discipline {
     name: string,

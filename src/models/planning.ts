@@ -3,12 +3,16 @@ import {
     validateInteger,
     required,
     validateDate, validateObjectId
-} from "../utils/validation-utils";
+} from "../validation/validation-utils";
 import {ObjectID} from "bson";
 
 export interface Time {
     hour: number;
     minute: number;
+}
+
+export function dailyMinutes(t: Time) {
+    return t.hour * 60 + t.minute;
 }
 
 export interface Planning {

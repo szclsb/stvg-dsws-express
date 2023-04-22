@@ -1,6 +1,6 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {validateEventConfig} from "../../models/event-config";
+import {validateEventConfig} from "../../../../src/models/event-config";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
 

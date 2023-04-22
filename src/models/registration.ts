@@ -2,7 +2,7 @@ import {
     required,
     validate, validateObjectId,
     validateText,
-} from "../utils/validation-utils";
+} from "../validation/validation-utils";
 import {ObjectID} from "bson";
 
 export interface Registration {

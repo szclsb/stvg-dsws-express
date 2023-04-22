@@ -1,9 +1,9 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {Registration, validateRegistration} from "../../models/registration";
+import {Registration, validateRegistration} from "../../../../src/models/registration";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
-import {validateArray} from "../../utils/validation-utils";
+import {validateArray} from "../../../../src/validation/validation-utils";
 
 export const collectionName = 'registrations';
 export const path = '/api/v1/registrations';
