@@ -4,6 +4,7 @@ import AthleteGroupItem from "./AthleteGroupItem";
 import {dailyMinutes, Time} from "../models/planning";
 import {RegistrationPlanning} from "../models/dto";
 import "../main.css"
+import {em, pad, seq} from "../ui-utils";
 
 interface TrackProperties {
     topHeaderHeight: number,
@@ -12,18 +13,6 @@ interface TrackProperties {
     itemWidth: number,
     tracks: number;
     plannings: RegistrationPlanning[];
-}
-
-function em(value: number): string {
-    return value + "em";
-}
-
-function seq(count: number): number[] {
-    return new Array(count).fill(1).map((_, i) => i + 1)
-}
-
-function pad(value: number, digits: number): string {
-    return String(value).padStart(digits, '0')
 }
 
 function Tracks(props: TrackProperties) {

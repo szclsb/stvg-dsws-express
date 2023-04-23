@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {EventConfig} from "../models/event-config";
 import {Client, Method} from "../client";
-import {Button, Collapse, List, ListItem, ListItemText, Stack, Tab, Tabs, TextField} from "@mui/material";
+import {Box, Button, Collapse, List, ListItem, ListItemText, Stack, Tab, Tabs, TextField} from "@mui/material";
 import {Discipline} from "../models/discipline";
 import {Planning} from "../models/planning";
 import {Athlete} from "../models/athlete";
 import Tracks from "../components/Tracks";
-import '../main.css';
 import {RegistrationPlanning} from "../models/dto";
+import '../main.css';
 
 const eventClient = new Client("/api/v1/event-config");
 const disciplineClient = new Client("/api/v1/disciplines");
@@ -26,8 +26,10 @@ function Event() {
                 <Tab label="Konfiguration"/>
                 <Tab label="Planung"/>
             </Tabs>
-            <ConfigTab active={value === 0}/>
-            <PlanningTab active={value === 1}/>
+            <Box sx={{p: 1}}>
+                <ConfigTab active={value === 0}/>
+                <PlanningTab active={value === 1}/>
+            </Box>
         </Stack>
     );
 }
