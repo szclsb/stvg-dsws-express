@@ -6,6 +6,7 @@ import express, {Request, Router} from "express";
 import {validateArray} from "../../../../src/validation/validation-utils";
 import {validatePlanning} from "../../../../src/models/planning";
 import {collectionName as registrationCollectionName} from "./registration-route"
+import {RegistrationPlanning} from "../../../../src/models/dto";
 
 export const collectionName = 'plannings';
 export const path = '/api/v1/planning';
@@ -13,6 +14,41 @@ export const path = '/api/v1/planning';
 export function init(db: Db): Router {
     const router = express.Router();
     const collection = db.collection(collectionName);
+
+    router.post("/auto", (req, res) => {
+        // auto planning
+        const regCollection = db.collection(registrationCollectionName);
+        const registration = regCollection.aggregate([]);
+
+        // todo planning per discipline category.
+
+        res.status(204).send();
+    });
+    router.get("/app", (req, res) => {
+        const regCollection = db.collection(registrationCollectionName);
+        const registration = regCollection.aggregate([]);
+
+        // todo all RegistrationPlanning.
+        res.status(200).json([
+            testPlanning(0),
+            testPlanning(1),
+            testPlanning(3),
+        ]);
+    });
+    router.get("/app/group/:planningNumber", (req, res) => {
+        const planningNumber = Number.parseInt(req.params.planningNumber as string, 10);
+        const regCollection = db.collection(registrationCollectionName);
+        // todo all RegistrationPlanning by planningNumber.
+        const registration = regCollection.aggregate([]);
+
+        if (Number.isNaN(planningNumber) || planningNumber < 0) {
+            res.status(400).send("Invalid planning number");
+        }
+
+        res.status(200).json([
+            testPlanning(planningNumber)
+        ]);
+    });
 
     router.post("/", (req, res) => {
         validatePlanning(req.body).then(planning => {
@@ -60,16 +96,33 @@ export function init(db: Db): Router {
             res.status(204).send();
         }).catch(errorCallback(res));
     });
-    router.post("/auto", (req, res) => {
-        // auto planning
-        const regCollection = db.collection(registrationCollectionName);
-        const registration = regCollection.aggregate([]);
-
-        // todo planning per discipline category.
-
-        res.status(204).send();
-    });
 
     console.debug(`initialized route ${path}`);
     return router;
+}
+
+
+// fixme
+function testPlanning(planningNumber: number): RegistrationPlanning {
+    const track = (planningNumber % 4) + 1;
+    return {
+        disciplineName: "test",
+        categoryName: undefined,
+        beginTrack: track,
+        endTrack: track,
+        startTime: {hour: 10, minute: 0},
+        endTime: {hour: 10, minute: 10},
+        groupName: undefined,
+        participants: [
+            {
+                athlete: {
+                    firstName: 'Claudio',
+                    lastName: 'Seitz',
+                    sex: 'MALE',
+                    yearOfBirth: 1993
+                },
+                age: 30
+            }
+        ]
+    }
 }

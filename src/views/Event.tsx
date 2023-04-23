@@ -82,33 +82,24 @@ function ConfigTab(props: { active: boolean }) {
     );
 }
 
-async function onAutoPlanning() {
-    await planningClient.fetch(Method.POST, "auto");
-}
+
 
 function PlanningTab(props: { active: boolean }) {
-    const plannings: RegistrationPlanning[] = [
-        {
-            disciplineName: "test",
-            categoryName: undefined,
-            beginTrack: 1,
-            endTrack: 1,
-            startTime: {hour: 10, minute: 0},
-            endTime: {hour: 10, minute: 10},
-            groupName: undefined,
-            participants: [
-                {
-                    athlete: {
-                        firstName: 'Claudio',
-                        lastName: 'Seitz',
-                        sex: 'MALE',
-                        yearOfBirth: 1993
-                    },
-                    age: 30
-                }
-            ]
+    const [plannings, setPlannings] = useState<RegistrationPlanning[]>([]);
+
+    useEffect(() => {
+        if (props.active) {
+            planningClient.fetch<RegistrationPlanning[]>(Method.GET, `app`)
+                .then(data => setPlannings(data))
+                .catch(err => console.warn(err));
         }
-    ];
+    }, [props])
+
+    const onAutoPlanning = async () => {
+        planningClient.fetch<RegistrationPlanning[]>(Method.POST, `auto`)
+            .then(data => setPlannings(data))
+            .catch(err => console.warn(err));
+    }
 
     return !props.active ? undefined : (
         <Stack spacing={2}>

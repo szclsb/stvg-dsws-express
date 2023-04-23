@@ -1,33 +1,20 @@
-import React from 'react';
-import {Box, Button, Stack, Tab, Tabs, TextField} from "@mui/material";
-import {RegistrationPlanning} from "../models/dto";
+import React, {useEffect, useState} from 'react';
+import {Box, Button, ButtonGroup, Stack, Tab, Tabs, TextField} from "@mui/material";
+import {RegistrationPlanning, RegistrationPlanningGroup} from "../models/dto";
 import Tracks from "../components/Tracks";
-import {seq} from "../ui-utils";
-import AthleteItem from "../components/AthleteItem";
+import {displaySex, seq} from "../ui-utils";
+import {printTime} from "../models/planning";
+import {Client, Method} from "../client";
+import {useNavigate} from "react-router-dom";
 
-// fixme
-const testPlanning: RegistrationPlanning = {
-    disciplineName: "test",
-    categoryName: undefined,
-    beginTrack: 1,
-    endTrack: 1,
-    startTime: {hour: 10, minute: 0},
-    endTime: {hour: 10, minute: 10},
-    groupName: undefined,
-    participants: [
-        {
-            athlete: {
-                firstName: 'Claudio',
-                lastName: 'Seitz',
-                sex: 'MALE',
-                yearOfBirth: 1993
-            },
-            age: 30
-        }
-    ]
-}
+const planningClient = new Client("/api/v1/planning");
+const recordingClient = new Client("/api/v1/recordingClient");
+
 
 function Recording() {
+    const queryParams = new URLSearchParams(window.location.search)
+    const planningNumberParam = queryParams.get("pn")
+    const planningNumber = Number.parseInt(planningNumberParam, 10);
     const [value, setValue] = React.useState(0);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -41,15 +28,30 @@ function Recording() {
                 <Tab label="Zeitplan"/>
             </Tabs>
             <Box sx={{p: 1}}>
-                <RecordingTab active={value === 0} tracks={4}/>
+                <RecordingTab active={value === 0} tracks={4} planningNumber={planningNumber}/>
                 <PlanningTab active={value === 1} tracks={4}/>
             </Box>
         </Stack>
     );
 }
 
-function RecordingTab(props: { active: boolean, tracks: number }) {
+function RecordingTab(props: { active: boolean, planningNumber: number, tracks: number }) {
+    const navigate = useNavigate();
+    const [planningGroup, setPlanningGroup] = useState<RegistrationPlanning[]>([]);
 
+    useEffect(() => {
+        if (props.active) {
+            planningClient.fetch<RegistrationPlanning[]>(Method.GET, `app/group/${props.planningNumber}`)
+                .then(data => setPlanningGroup(data))
+                .catch(err => console.warn(err));
+        }
+    // }, [props.active, props.planningNumber])
+    }, [props])
+
+    const onBack = () => {
+        navigate(`/admin?pn=${props.planningNumber - 1}`);
+        navigate(0)  // refresh, triggers fetch  fixme
+    }
 
     const onConfirm = () => {
         const seconds = seq(props.tracks).map(i => {
@@ -57,36 +59,59 @@ function RecordingTab(props: { active: boolean, tracks: number }) {
             return Number.parseFloat(element.value);
         });
         console.log(seconds);
+        navigate(`/admin?pn=${props.planningNumber + 1}`);
+        navigate(0)  // refresh, triggers fetch  fixme
     }
 
     return !props.active ? undefined : (
         <Stack spacing={3}>
             <h3>Zeiterfassung</h3>
+            <h4>Planungsnummer {props.planningNumber}</h4>
             <Stack spacing={2}>
                 {seq(props.tracks).map(i => {
+                    const planning = planningGroup.find(p => p.beginTrack === i);
+                    let text: string;
+                    if (planning?.groupName) {
+                        text = `Gruppe: ${planning.groupName}`;
+                    } else if (planning) {
+                        const participant = planning.participants[0];
+                        text = `${displaySex(participant.athlete.sex)}/${participant.age} ${participant.athlete.firstName} ${participant.athlete.lastName}`;
+                    }
                     return (<Stack direction={"row"} spacing={2} alignContent={"center"}>
                         <Stack spacing={1}>
-                            <div>10:00</div>
-                            <div>10:10</div>
+                            <div>{printTime(planning?.startTime)}</div>
+                            <div>{printTime(planning?.endTime)}</div>
                         </Stack>
-                        <TextField id={`track-${i}`} label={`Bahn ${i}`} InputLabelProps={{shrink: true}} type={"number"}
-                        helperText={"M/30 Claudio Seitz"}/>
+                        <TextField id={`track-${i}`} disabled={!planning} label={`Bahn ${i}`} InputLabelProps={{shrink: true}}
+                                   type={"number"}
+                                   helperText={text}/>
                     </Stack>);
                 })}
             </Stack>
-            <Button onClick={onConfirm}>Bestätigen</Button>
+            <Box display="flex"
+                 justifyContent="space-between"
+                 alignItems="center">
+                <Button variant="outlined" color="secondary" onClick={onBack}>Zurück</Button>
+                <Button variant="contained" color="primary" onClick={onConfirm}>Bestätigen und weiter</Button>
+            </Box>
         </Stack>
     );
 }
 
-                                          // return (<TextField id={`track-${i}`} error label={`Bahn ${i}`} InputLabelProps={{shrink: true}} type={"text"}
-                                          //                    inputProps={{inputMode: "numeric", pattern: "^[0-9]+(\\.[0-9]{1,3})?$"}}
-                                          //                    helperText="Ungültiges Format: Erwartet Zahl mit höchstens 3 Nachkommastellen"/>);
+// return (<TextField id={`track-${i}`} error label={`Bahn ${i}`} InputLabelProps={{shrink: true}} type={"text"}
+//                    inputProps={{inputMode: "numeric", pattern: "^[0-9]+(\\.[0-9]{1,3})?$"}}
+//                    helperText="Ungültiges Format: Erwartet Zahl mit höchstens 3 Nachkommastellen"/>);
 
 function PlanningTab(props: { active: boolean, tracks: number }) {
-    const plannings: RegistrationPlanning[] = [
-        testPlanning
-    ];
+    const [plannings, setPlannings] = useState<RegistrationPlanning[]>([]);
+
+    useEffect(() => {
+        if (props.active) {
+            planningClient.fetch<RegistrationPlanning[]>(Method.GET, `app`)
+                .then(data => setPlannings(data))
+                .catch(err => console.warn(err));
+        }
+    }, [props])
 
     return !props.active ? undefined : (
         <Stack spacing={2}>

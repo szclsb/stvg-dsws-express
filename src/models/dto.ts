@@ -14,3 +14,8 @@ export interface RegistrationPlanning {
         age: number
     }[]
 }
+
+export interface RegistrationPlanningGroup {
+    planningNumber: number,
+    plannings: RegistrationPlanning[]
+}

@@ -1,7 +1,7 @@
 import React from "react";
 import AthleteItem from "./AthleteItem";
 import AthleteGroupItem from "./AthleteGroupItem";
-import {dailyMinutes, Time} from "../models/planning";
+import {dailyMinutes, printTime, Time} from "../models/planning";
 import {RegistrationPlanning} from "../models/dto";
 import "../main.css"
 import {em, pad, seq} from "../ui-utils";
@@ -44,7 +44,7 @@ function Tracks(props: TrackProperties) {
                     top: em(0),
                     left: `calc(${em(left)} - var(--app-planning-time-width) / 2)`,
                     height: em(props.topHeaderHeight),
-                }}>{pad(t.hour, 2)}:{pad(t.minute, 2)}</div>);
+                }}>{printTime(t)}</div>);
             })}
             {seq(props.tracks).map(i => {
                 const top = props.topHeaderHeight + (props.itemHeight) * (i - 1);

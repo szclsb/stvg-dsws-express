@@ -5,14 +5,19 @@ import {
     validateDate, validateObjectId
 } from "../validation/validation-utils";
 import {ObjectID} from "bson";
+import {pad} from "../ui-utils";
 
 export interface Time {
     hour: number;
     minute: number;
 }
 
-export function dailyMinutes(t: Time) {
+export function dailyMinutes(t: Time): number {
     return t.hour * 60 + t.minute;
+}
+
+export function printTime(t?: Time): string | undefined {
+    return !t ? undefined : `${pad(t.hour, 2)}:${pad(t.minute, 2)}`
 }
 
 export interface Planning {
