@@ -3,6 +3,29 @@ import {Box, Button, Stack, Tab, Tabs, TextField} from "@mui/material";
 import {RegistrationPlanning} from "../models/dto";
 import Tracks from "../components/Tracks";
 import {seq} from "../ui-utils";
+import AthleteItem from "../components/AthleteItem";
+
+// fixme
+const testPlanning: RegistrationPlanning = {
+    disciplineName: "test",
+    categoryName: undefined,
+    beginTrack: 1,
+    endTrack: 1,
+    startTime: {hour: 10, minute: 0},
+    endTime: {hour: 10, minute: 10},
+    groupName: undefined,
+    participants: [
+        {
+            athlete: {
+                firstName: 'Claudio',
+                lastName: 'Seitz',
+                sex: 'MALE',
+                yearOfBirth: 1993
+            },
+            age: 30
+        }
+    ]
+}
 
 function Recording() {
     const [value, setValue] = React.useState(0);
@@ -26,6 +49,8 @@ function Recording() {
 }
 
 function RecordingTab(props: { active: boolean, tracks: number }) {
+
+
     const onConfirm = () => {
         const seconds = seq(props.tracks).map(i => {
             const element = document.getElementById(`track-${i}`) as HTMLInputElement;
@@ -36,12 +61,17 @@ function RecordingTab(props: { active: boolean, tracks: number }) {
 
     return !props.active ? undefined : (
         <Stack spacing={3}>
+            <h3>Zeiterfassung</h3>
             <Stack spacing={2}>
                 {seq(props.tracks).map(i => {
-                    return (<TextField id={`track-${i}`} label={`Bahn ${i}`} InputLabelProps={{shrink: true}} type={"number"} />);
-                    // return (<TextField id={`track-${i}`} error label={`Bahn ${i}`} InputLabelProps={{shrink: true}} type={"text"}
-                    //                    inputProps={{inputMode: "numeric", pattern: "^[0-9]+(\\.[0-9]{1,3})?$"}}
-                    //                    helperText="Ungültiges Format: Erwartet Zahl mit höchstens 3 Nachkommastellen"/>);
+                    return (<Stack direction={"row"} spacing={2} alignContent={"center"}>
+                        <Stack spacing={1}>
+                            <div>10:00</div>
+                            <div>10:10</div>
+                        </Stack>
+                        <TextField id={`track-${i}`} label={`Bahn ${i}`} InputLabelProps={{shrink: true}} type={"number"}
+                        helperText={"M/30 Claudio Seitz"}/>
+                    </Stack>);
                 })}
             </Stack>
             <Button onClick={onConfirm}>Bestätigen</Button>
@@ -49,28 +79,13 @@ function RecordingTab(props: { active: boolean, tracks: number }) {
     );
 }
 
+                                          // return (<TextField id={`track-${i}`} error label={`Bahn ${i}`} InputLabelProps={{shrink: true}} type={"text"}
+                                          //                    inputProps={{inputMode: "numeric", pattern: "^[0-9]+(\\.[0-9]{1,3})?$"}}
+                                          //                    helperText="Ungültiges Format: Erwartet Zahl mit höchstens 3 Nachkommastellen"/>);
+
 function PlanningTab(props: { active: boolean, tracks: number }) {
     const plannings: RegistrationPlanning[] = [
-        {
-            disciplineName: "test",
-            categoryName: undefined,
-            beginTrack: 1,
-            endTrack: 1,
-            startTime: {hour: 10, minute: 0},
-            endTime: {hour: 10, minute: 10},
-            groupName: undefined,
-            participants: [
-                {
-                    athlete: {
-                        firstName: 'Claudio',
-                        lastName: 'Seitz',
-                        sex: 'MALE',
-                        yearOfBirth: 1993
-                    },
-                    age: 30
-                }
-            ]
-        }
+        testPlanning
     ];
 
     return !props.active ? undefined : (

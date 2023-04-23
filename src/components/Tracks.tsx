@@ -90,8 +90,8 @@ function Tracks(props: TrackProperties) {
 }
 
 function createItem(p: RegistrationPlanning): JSX.Element {
-    return !p.groupName ? <AthleteItem planning={p}/> :
-        <AthleteGroupItem planning={p}/>
+    return !p.groupName ? <AthleteItem athlete={p.participants[0].athlete} age={p.participants[0].age}/> :
+        <AthleteGroupItem groupName={p.groupName}/>
 }
 
 export default Tracks;
