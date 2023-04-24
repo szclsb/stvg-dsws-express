@@ -10,16 +10,16 @@ import {
 } from "../validation/validation-utils";;
 
 export interface Discipline {
-    name: string,
-    categories: Category[],
-    minRegistrations?: number,
-    maxRegistrations?: number
+    name: string;
+    categories: Category[];
+    minRegistrations?: number;
+    maxRegistrations?: number;
 }
 
 export interface Category {
     name: string;
     distance: number;
-    sex?: Sex
+    sex?: Sex;
     minAge?: number;
     maxAge?: number;
 }

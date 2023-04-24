@@ -6,6 +6,8 @@ import express, {Request, Router} from "express";
 import {validateArray} from "../../../../src/validation/validation-utils";
 import {validatePlanning} from "../../../../src/models/planning";
 import {collectionName as registrationCollectionName} from "./registration-route"
+import {collectionName as disciplineCollectionName} from "./discipline-route"
+import {collectionName as athleteCollectionName} from "./athlete-route"
 import {RegistrationPlanning} from "../../../../src/models/dto";
 
 export const collectionName = 'plannings';
@@ -37,17 +39,57 @@ export function init(db: Db): Router {
     });
     router.get("/app/group/:planningNumber", (req, res) => {
         const planningNumber = Number.parseInt(req.params.planningNumber as string, 10);
-        const regCollection = db.collection(registrationCollectionName);
-        // todo all RegistrationPlanning by planningNumber.
-        const registration = regCollection.aggregate([]);
-
         if (Number.isNaN(planningNumber) || planningNumber < 0) {
             res.status(400).send("Invalid planning number");
+        } else {
+            // todo test.
+            const plannings = collection.aggregate([
+                { $match: {planningNumber: planningNumber} },
+                {
+                    $lookup: {
+                        from: registrationCollectionName,
+                        localField: "registrationId",
+                        foreignField: "_id",
+                        pipeline: [
+                            {
+                                $lookup: {
+                                    from: disciplineCollectionName,
+                                    localField: "disciplineId",
+                                    foreignField: "_id",
+                                    pipeline: [
+                                        {
+                                            $project: {name: 1}
+                                        }
+                                    ],
+                                    as: "disciplineName"
+                                },
+                            },
+                            {
+                                $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "disciplineName", 0 ] }, "$$ROOT" ] } }
+                            },
+                            {
+                                $lookup: {
+                                    from: athleteCollectionName,
+                                    localField: "athleteIds",
+                                    foreignField: "_id",
+                                    pipeline: [
+                                        {
+                                            $project: {_id: 0}
+                                        }
+                                    ],
+                                    as: "athletes"
+                                }
+                            }
+                        ],
+                        as: "registration"
+                    }
+                },
+                {
+                    $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "registration", 0 ] }, "$$ROOT" ] } }
+                }
+            ]);
+            res.status(200).json(plannings);
         }
-
-        res.status(200).json([
-            testPlanning(planningNumber)
-        ]);
     });
 
     router.post("/", (req, res) => {

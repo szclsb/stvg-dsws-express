@@ -111,6 +111,20 @@ export async function validateObjectId(value?: any): Promise<ObjectId | undefine
     });
 }
 
+export async function validateObjectIds(value?: any): Promise<ObjectId | ObjectId[] | undefined> {
+    return new Promise((resolve, reject) => {
+        if (value === undefined || value === null) {
+            resolve(undefined);
+        } else if (ObjectId.isValid(value)) {
+            resolve(ObjectId.createFromHexString(value));
+        } else if (Array.isArray(value)) {
+            resolve(value.map(v => ObjectId.createFromHexString(v)));
+        } else {
+            reject(`'${value}' is not an object id`);
+        }
+    });
+}
+
 // export async function validateReference(collectionName: string, value?: any): Promise<DBRef | undefined> {
 //     return new Promise((resolve, reject) => {
 //         if (value === undefined || value === null) {

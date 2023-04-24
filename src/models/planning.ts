@@ -22,7 +22,9 @@ export function printTime(t?: Time): string | undefined {
 
 export interface Planning {
     registrationId: ObjectID;
-    track: number;
+    beginTrack: number;
+    endTrack: number;
+    planningNumber: number,
     startTime: Time;
     endTime: Time;
 }
@@ -36,8 +38,10 @@ export async function validateTime(body: any): Promise<Time> {
 
 export async function validatePlanning(body: any): Promise<Planning> {
     return await validate<Planning>({
-        registrationId: validateObjectId(body.firstName).then(required),
-        track: validateInteger(body.yearOfBirth, 0).then(required),
+        registrationId: validateObjectId(body.registrationId).then(required),
+        beginTrack: validateInteger(body.beginTrack, 0).then(required),
+        endTrack: validateInteger(body.endTrack, 0).then(required),
+        planningNumber: validateInteger(body.planningNumber, 0).then(required),
         startTime: validateTime(body.startTime).then(required),
         endTime: validateTime(body.endTime).then(required),
     });
