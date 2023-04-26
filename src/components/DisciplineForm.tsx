@@ -5,13 +5,13 @@ import React from "react";
 
 
 export function DisciplineForm(props: {
-    discipline: Discipline,
+    source: Discipline,
     onSave: (discipline: Discipline) => void,
     onCancel: () => void
 }) {
-    const [disciplineName, setDisciplineName] = useState<string>(props.discipline?.name);
-    const [disciplineMinRegistrations, setDisciplineMinRegistration] = useState<number>(props.discipline?.minRegistrations);
-    const [disciplineMaxRegistrations, setDisciplineMaxRegistration] = useState<number>(props.discipline?.maxRegistrations);
+    const [disciplineName, setDisciplineName] = useState<string>(props.source?.name);
+    const [disciplineMinRegistrations, setDisciplineMinRegistration] = useState<number>(props.source?.minRegistrations);
+    const [disciplineMaxRegistrations, setDisciplineMaxRegistration] = useState<number>(props.source?.maxRegistrations);
 
     const onDisciplineNameChange = (e: ChangeEvent<HTMLInputElement>) => setDisciplineName(e.target.value);
     const onDisciplineMinRegistrations = (e: ChangeEvent<HTMLInputElement>) => setDisciplineMinRegistration(Number.parseInt(e.target.value, 10));

@@ -16,15 +16,16 @@ import {
     TextField
 } from "@mui/material";
 import {Add, Edit, Delete} from '@mui/icons-material';
-import {Discipline} from "../models/discipline";
+import {Category, Discipline} from "../models/discipline";
 import Tracks from "../components/Tracks";
 import {RunPlanning} from "../models/dto";
 import '../main.css';
 import {displaySex} from "../ui-utils";
-import bodyParser from "body-parser";
 import {DisciplineForm} from "../components/DisciplineForm";
-import {Item} from "../models/models";
+import {ItemState} from "../models/models";
 import {DisciplineListItem} from "../components/DisciplineListItem";
+import {CategoryForm} from "../components/CategoryForm";
+import {CategoryListItem} from "../components/CategoryListItem";
 
 const eventClient = new Client("/api/v1/event-config");
 const disciplineClient = new Client("/api/v1/disciplines");
@@ -56,7 +57,7 @@ function ConfigTab(props: { active: boolean }) {
     const [edit, setEdit] = useState<boolean>(false);
     const [eventName, setEventName] = useState<string>(undefined);
     const [eventTracks, setEventTracks] = useState<number>(undefined);
-    const [disciplines, setDisciplines] = useState<Item<Discipline>[]>([]);
+    const [disciplines, setDisciplines] = useState<Discipline[]>([]);
     const [notification, setNotification] = useState<{
         show: boolean,
         message: string,
@@ -75,7 +76,20 @@ function ConfigTab(props: { active: boolean }) {
         index: -1,
         source: undefined
     });
+    const [categoryForm, setCategoryForm] = useState<{
+        show: boolean,
+        indexCategory: number,
+        indexDiscipline: number
+        source: Category
+    }>({
+        show: false,
+        indexCategory: -1,
+        indexDiscipline: -1,
+        source: undefined
+    });
 
+    //todo usestate
+    const stateMap: Map<number, ItemState> = new Map();
 
     useEffect(() => {
         if (props.active) {
@@ -91,9 +105,7 @@ function ConfigTab(props: { active: boolean }) {
             })
             .catch(err => console.warn(err));
         disciplineClient.fetch<Discipline[]>(Method.GET)
-            .then(data => setDisciplines(data.map(d => {
-                return {content: d};
-            })))
+            .then(data => setDisciplines(data))
             .catch(err => console.warn(err));
     }
 
@@ -132,10 +144,17 @@ function ConfigTab(props: { active: boolean }) {
         severity: notification.severity
     });
 
-    const onDisciplineFormOpen = (index: number, discipline: Discipline) => setDisciplineForm({
+    const onDisciplineFormOpen = (discipline: Discipline, index: number) => setDisciplineForm({
         show: true,
         index,
         source: discipline
+    });
+
+    const onCategoryFormOpen = (category: Category, indexCategory: number, indexDiscipline: number) => setCategoryForm({
+        show: true,
+        indexCategory,
+        indexDiscipline,
+        source: category
     });
 
     const onDisciplineFormClose = () => setDisciplineForm({
@@ -144,39 +163,66 @@ function ConfigTab(props: { active: boolean }) {
         source: undefined
     });
 
-    const onSaveDiscipline = (index: number, discipline: Discipline) => {
-        let data: Item<Discipline>[] = [];
+    const onCategoryFormClose = () => setCategoryForm({
+        show: false,
+        indexCategory: -1,
+        indexDiscipline: -1,
+        source: undefined
+    });
+
+    const onSaveDiscipline = (discipline: Discipline, index: number) => {
+        let data: Discipline[] = [];
         if (index < 0) {
             // new
-            data = [...disciplines, {
-                state: "CREATED",
-                content: discipline
-            }];
+            data = [...disciplines, discipline];
+            stateMap.set(index, "CREATED")
             console.debug(`Added internal discipline ${discipline.name}`)
         } else {
             // edit
             data = [...disciplines];
-            data[index] = {
-                state: "EDITED",
-                content: discipline
-            }
+            stateMap.set(index, "EDITED")
         }
         setDisciplines(data);
         onDisciplineFormClose();
     };
 
-    const onDeleteDiscipline = (index: number) => {
-        const source = disciplines[index]
-        const data = [...disciplines];
-        if (source.state !== "CREATED") {
-            data[index] = {
-                state: "DELETED",
-                content: source.content
+    const onSaveCategory = (category: Category, indexCategory: number, indexDiscipline: number) => {
+        const discipline = disciplines[indexDiscipline];
+        if (indexCategory < 0) {
+            // new
+            discipline.categories = [...discipline.categories, category];
+            if (stateMap.get(indexDiscipline) === undefined) {
+                stateMap.set(indexDiscipline, "EDITED")
             }
+            console.debug(`Added internal category ${category.name} to discipline ${discipline.name}`)
+        } else {
+            // edit
+            discipline.categories[indexCategory] = category;
+            if (stateMap.get(indexDiscipline) === undefined) {
+                stateMap.set(indexDiscipline, "EDITED")
+            }
+        }
+        setDisciplines([...disciplines]);
+        onCategoryFormClose();
+    };
+
+    const onDeleteDiscipline = (index: number) => {
+        const data = [...disciplines];
+        if (stateMap.get(index) !== "CREATED") {
+            stateMap.set(index, "DELETED");
         } else {
             data.splice(index, 1);
         }
         setDisciplines(data);
+    }
+
+    const onDeleteCategory = (indexCategory: number, indexDiscipline: number) => {
+        const discipline = disciplines[indexDiscipline];
+        discipline.categories.splice(indexCategory, 1)
+        if (stateMap.get(indexDiscipline) === undefined) {
+            stateMap.set(indexDiscipline, "EDITED")
+        }
+        setDisciplines([...disciplines]);
     }
 
     const footer = !edit
@@ -207,44 +253,29 @@ function ConfigTab(props: { active: boolean }) {
                                   justifyContent="space-between"
                                   alignItems="center">
                 <div>Disziplinen</div>
-                {!edit ? undefined : <IconButton onClick={() => onDisciplineFormOpen(-1, undefined)}>
+                {!edit ? undefined : <IconButton onClick={() => onDisciplineFormOpen(undefined, -1)}>
                     <Add color="primary"/>
                 </IconButton>}
             </Box>}>
-                {disciplines?.map((item, i) => <div>
+                {disciplines?.map((discipline, i) => <div>
                     <ListItem sx={{width: 1}}>
-                        <DisciplineListItem show={item.state !== "DELETED"}
+                        <DisciplineListItem show={stateMap.get(i) !== "DELETED"}
                                             edit={edit}
-                                            index={i}
-                                            discipline={item.content}
+                                            discipline={discipline}
                                             onDelete={() => onDeleteDiscipline(i)}
-                                            onEdit={() => onDisciplineFormOpen(i, item.content)}
-                                            onCategoryAdd={() => console.debug("test")}/>
+                                            onEdit={() => onDisciplineFormOpen(discipline, i)}
+                                            onCategoryAdd={() => onCategoryFormOpen(undefined, -1, i)}/>
                     </ListItem>
-                    {item.state === "DELETED" ? undefined : <Collapse in={true}>
+                    {stateMap.get(i) === "DELETED" ? undefined : <Collapse in={true}>
                         <List disablePadding>
-                            {item.content.categories?.map(cat => <ListItem sx={{
+                            {discipline.categories?.map((cat, j) => <ListItem sx={{
                                 width: 1
                             }}>
-                                <Stack sx={{
-                                    ml: 4,
-                                    border: '0.1em solid black',
-                                    borderRadius: '1em',
-                                    padding: '1em',
-                                    width: 1
-                                }}>
-                                    <Box display="flex"
-                                         justifyContent="space-between"
-                                         alignItems="center">
-                                        <div>{cat.name}</div>
-                                        {!edit ? undefined : <Stack direction="row">
-                                            <IconButton><Delete color="error"/></IconButton>
-                                            <IconButton><Edit color="secondary"/></IconButton>
-                                        </Stack>}
-                                    </Box>
-                                    <div>{displaySex(cat.sex) ?? "Offen"}: {cat.minAge ?? 0} - {cat.maxAge ?? "∞"}</div>
-                                    <div>{cat.distance}m</div>
-                                </Stack>
+                                <CategoryListItem show={true}
+                                                  edit={edit}
+                                                  category={cat}
+                                                  onDelete={() => onDeleteCategory(j, i)}
+                                                  onEdit={() => onCategoryFormOpen(cat, j, i)} />
                             </ListItem>)}
                         </List>
                     </Collapse>}
@@ -259,9 +290,17 @@ function ConfigTab(props: { active: boolean }) {
             <Dialog open={disciplineForm.show} onClose={onDisciplineFormClose}>
                 <DialogTitle>Disziplin</DialogTitle>
                 <DialogContent>
-                    <DisciplineForm discipline={disciplineForm.source}
-                                    onSave={(discipline) => onSaveDiscipline(disciplineForm.index, discipline)}
+                    <DisciplineForm source={disciplineForm.source}
+                                    onSave={(discipline) => onSaveDiscipline(discipline, disciplineForm.index,)}
                                     onCancel={onDisciplineFormClose}/>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={categoryForm.show} onClose={onCategoryFormClose}>
+                <DialogTitle>Kategorie</DialogTitle>
+                <DialogContent>
+                    <CategoryForm source={categoryForm.source}
+                                  onSave={(category) => onSaveCategory(category, categoryForm.indexCategory, categoryForm.indexDiscipline)}
+                                  onCancel={onCategoryFormClose}/>
                 </DialogContent>
             </Dialog>
         </Stack>

@@ -1,12 +1,12 @@
 import {Box, IconButton, Stack} from "@mui/material";
 import {Add, Delete, Edit} from "@mui/icons-material";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {Discipline} from "../models/discipline";
 
 export function DisciplineListItem(props: {
     show: boolean,
     edit: boolean,
-    index: number,
+    // index: number,
     discipline: Discipline
     onDelete: () => void,
     onEdit: () => void,
