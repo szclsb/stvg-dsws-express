@@ -8,7 +8,7 @@ import {validatePlanning} from "../../../../src/models/planning";
 import {collectionName as registrationCollectionName} from "./registration-route"
 import {collectionName as disciplineCollectionName} from "./discipline-route"
 import {collectionName as athleteCollectionName} from "./athlete-route"
-import {RegistrationPlanning} from "../../../../src/models/dto";
+import {RunPlanning} from "../../../../src/models/dto";
 
 export const collectionName = 'plannings';
 export const path = '/api/v1/planning';
@@ -145,7 +145,7 @@ export function init(db: Db): Router {
 
 
 // fixme
-function testPlanning(planningNumber: number): RegistrationPlanning {
+function testPlanning(planningNumber: number): RunPlanning {
     const track = (planningNumber % 4) + 1;
     return {
         disciplineName: "test",

@@ -6,7 +6,7 @@ import {Discipline} from "../models/discipline";
 import {Planning} from "../models/planning";
 import {Athlete} from "../models/athlete";
 import Tracks from "../components/Tracks";
-import {RegistrationPlanning} from "../models/dto";
+import {RunPlanning} from "../models/dto";
 import '../main.css';
 
 const eventClient = new Client("/api/v1/event-config");
@@ -24,6 +24,7 @@ function Event() {
         <Stack spacing={2}>
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 <Tab label="Konfiguration"/>
+                <Tab label="Anmeldung"/>
                 <Tab label="Planung"/>
             </Tabs>
             <Box sx={{p: 1}}>
@@ -82,21 +83,24 @@ function ConfigTab(props: { active: boolean }) {
     );
 }
 
+function RegistrationTab(props: {active: boolean}) {
+    const [plannings, setPlannings] = useState<RunPlanning[]>([]);
+}
 
 
 function PlanningTab(props: { active: boolean }) {
-    const [plannings, setPlannings] = useState<RegistrationPlanning[]>([]);
+    const [plannings, setPlannings] = useState<RunPlanning[]>([]);
 
     useEffect(() => {
         if (props.active) {
-            planningClient.fetch<RegistrationPlanning[]>(Method.GET, `app`)
+            planningClient.fetch<RunPlanning[]>(Method.GET, `app`)
                 .then(data => setPlannings(data))
                 .catch(err => console.warn(err));
         }
     }, [props])
 
     const onAutoPlanning = async () => {
-        planningClient.fetch<RegistrationPlanning[]>(Method.POST, `auto`)
+        planningClient.fetch<RunPlanning[]>(Method.POST, `auto`)
             .then(data => setPlannings(data))
             .catch(err => console.warn(err));
     }

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Box, Button, ButtonGroup, Stack, Tab, Tabs, TextField} from "@mui/material";
-import {RegistrationPlanning, RegistrationPlanningGroup} from "../models/dto";
+import {RunPlanning} from "../models/dto";
 import Tracks from "../components/Tracks";
 import {displaySex, seq} from "../ui-utils";
 import {printTime} from "../models/planning";
@@ -37,11 +37,11 @@ function Recording() {
 
 function RecordingTab(props: { active: boolean, planningNumber: number, tracks: number }) {
     const navigate = useNavigate();
-    const [planningGroup, setPlanningGroup] = useState<RegistrationPlanning[]>([]);
+    const [planningGroup, setPlanningGroup] = useState<RunPlanning[]>([]);
 
     useEffect(() => {
         if (props.active) {
-            planningClient.fetch<RegistrationPlanning[]>(Method.GET, `app/group/${props.planningNumber}`)
+            planningClient.fetch<RunPlanning[]>(Method.GET, `app/group/${props.planningNumber}`)
                 .then(data => setPlanningGroup(data))
                 .catch(err => console.warn(err));
         }
@@ -103,11 +103,11 @@ function RecordingTab(props: { active: boolean, planningNumber: number, tracks: 
 //                    helperText="Ungültiges Format: Erwartet Zahl mit höchstens 3 Nachkommastellen"/>);
 
 function PlanningTab(props: { active: boolean, tracks: number }) {
-    const [plannings, setPlannings] = useState<RegistrationPlanning[]>([]);
+    const [plannings, setPlannings] = useState<RunPlanning[]>([]);
 
     useEffect(() => {
         if (props.active) {
-            planningClient.fetch<RegistrationPlanning[]>(Method.GET, `app`)
+            planningClient.fetch<RunPlanning[]>(Method.GET, `app`)
                 .then(data => setPlannings(data))
                 .catch(err => console.warn(err));
         }
