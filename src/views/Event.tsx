@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import {EventConfig} from "../models/event-config";
 import {Client, Method} from "../client";
 import {Box, Button, Collapse, List, ListItem, ListItemText, Stack, Tab, Tabs, TextField} from "@mui/material";
@@ -37,13 +37,17 @@ function Event() {
 
 function ConfigTab(props: { active: boolean }) {
     const [edit, setEdit] = useState<boolean>(false);
-    const [config, setConfig] = useState<EventConfig>(undefined);
+    const [eventName, setEventName] = useState<string>(undefined);
+    const [eventTracks, setEventTracks] = useState<number>(undefined);
     const [disciplines, setDiscipline] = useState<Discipline[]>(undefined);
 
     useEffect(() => {
         if (props.active) {
             eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
-                .then(data => setConfig(data))
+                .then(data => {
+                    setEventName(data.eventName);
+                    setEventTracks(data.tracks);
+                })
                 .catch(err => console.warn(err));
             disciplineClient.fetch<Discipline[]>(Method.GET)
                 .then(data => setDiscipline(data))
@@ -58,6 +62,9 @@ function ConfigTab(props: { active: boolean }) {
         setEdit(false);
     }
 
+    const onEventNameChange = (e: ChangeEvent<HTMLInputElement>) =>  setEventName(e.target.value);
+    const onEventTracksChange = (e: ChangeEvent<HTMLInputElement>) =>  setEventTracks(Number.parseInt(e.target.value, 10));
+
     const footer = !edit
         ? <Button variant="contained" color="primary" onClick={onEdit}>Bearbeiten</Button>
         : <Box display="flex"
@@ -70,12 +77,12 @@ function ConfigTab(props: { active: boolean }) {
     return !props.active ? undefined : (
         <Stack spacing={2}>
             <h3>Anlass Konfiguration</h3>
-            <TextField label="Name" defaultValue={config?.eventName}  /* value={config?.eventName} */ InputLabelProps={{
+            <TextField label="Name" value={eventName} onChange={onEventNameChange} InputLabelProps={{
                 shrink: true
             }} InputProps={{
                 disabled: !edit,
             }}/>
-            <TextField label="Bahnen" defaultValue={config?.tracks} /* value={config?.tracks} */ InputLabelProps={{
+            <TextField label="Bahnen" value={eventTracks} onChange={onEventTracksChange} InputLabelProps={{
                 shrink: true
             }} InputProps={{
                 disabled: !edit,
