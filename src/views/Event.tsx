@@ -1,7 +1,20 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
 import {EventConfig} from "../models/event-config";
 import {Client, Method} from "../client";
-import {Box, Button, Collapse, List, ListItem, ListItemText, Stack, Tab, Tabs, TextField} from "@mui/material";
+import {
+    Alert, AlertColor,
+    Box,
+    Button,
+    Collapse,
+    List,
+    ListItem,
+    ListItemText,
+    Snackbar,
+    Stack,
+    Tab,
+    Tabs,
+    TextField
+} from "@mui/material";
 import {Discipline} from "../models/discipline";
 import {Planning} from "../models/planning";
 import {Athlete} from "../models/athlete";
@@ -40,30 +53,64 @@ function ConfigTab(props: { active: boolean }) {
     const [eventName, setEventName] = useState<string>(undefined);
     const [eventTracks, setEventTracks] = useState<number>(undefined);
     const [disciplines, setDiscipline] = useState<Discipline[]>(undefined);
+    const [notification, setNotification] = useState<{
+        show: boolean,
+        message: string,
+        severity: AlertColor
+    }>({
+        show: false,
+        message: "",
+        severity: "info"
+    });
 
     useEffect(() => {
         if (props.active) {
-            eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
-                .then(data => {
-                    setEventName(data.eventName);
-                    setEventTracks(data.tracks);
-                })
-                .catch(err => console.warn(err));
-            disciplineClient.fetch<Discipline[]>(Method.GET)
-                .then(data => setDiscipline(data))
-                .catch(err => console.warn(err));
+            fetchData();
         }
     }, [props]);
 
+    const fetchData = () => {
+        eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
+            .then(data => {
+                setEventName(data.eventName);
+                setEventTracks(data.tracks);
+            })
+            .catch(err => console.warn(err));
+        disciplineClient.fetch<Discipline[]>(Method.GET)
+            .then(data => setDiscipline(data))
+            .catch(err => console.warn(err));
+    }
+
     const onEdit = () => setEdit(true);
-    const onCancel = () => setEdit(false);
+    const onCancel = () => {
+        fetchData();
+        setEdit(false);
+    }
     const onConfirm = () => {
-        // todo save
+        eventClient.fetch<EventConfig>(Method.PUT, "63eea5bbc350bea3d7ada318", {
+            eventName,
+            tracks: eventTracks
+        }).then(_ =>  setNotification({
+            show: true,
+            message: "Änderungen erfolgreich gespeichert",
+            severity: "success"
+        }))
+            .catch(err => {
+                console.warn(err);
+                setNotification({
+                    show: true,
+                    message: "Änderungen können nicht gespeichert werden",
+                    severity: "error"
+                })
+                fetchData();
+            });
         setEdit(false);
     }
 
-    const onEventNameChange = (e: ChangeEvent<HTMLInputElement>) =>  setEventName(e.target.value);
-    const onEventTracksChange = (e: ChangeEvent<HTMLInputElement>) =>  setEventTracks(Number.parseInt(e.target.value, 10));
+    const onEventNameChange = (e: ChangeEvent<HTMLInputElement>) => setEventName(e.target.value);
+    const onEventTracksChange = (e: ChangeEvent<HTMLInputElement>) => setEventTracks(Number.parseInt(e.target.value, 10));
+
+    const onNotificationClose = () => setNotification({show: false, message: notification.message, severity: notification.severity})
 
     const footer = !edit
         ? <Button variant="contained" color="primary" onClick={onEdit}>Bearbeiten</Button>
@@ -82,7 +129,7 @@ function ConfigTab(props: { active: boolean }) {
             }} InputProps={{
                 disabled: !edit,
             }}/>
-            <TextField label="Bahnen" value={eventTracks} onChange={onEventTracksChange} InputLabelProps={{
+            <TextField label="Bahnen" value={eventTracks} type="number" onChange={onEventTracksChange} InputLabelProps={{
                 shrink: true
             }} InputProps={{
                 disabled: !edit,
@@ -104,6 +151,11 @@ function ConfigTab(props: { active: boolean }) {
                 </div>)}
             </List>
             {footer}
+            <Snackbar open={notification.show} autoHideDuration={5000} onClose={onNotificationClose}>
+                <Alert severity={notification.severity} sx={{ width: '100%' }}>
+                    {notification.message}
+                </Alert>
+            </Snackbar>
         </Stack>
     );
 }

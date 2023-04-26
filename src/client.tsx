@@ -22,7 +22,7 @@ export class Client {
                 "Content-Type": "application/json"
             },
             method,
-            body
+            body: !body ? undefined : JSON.stringify(body)
         }).then(res => {
             const lengthStr =  res.headers.get("Content-Length")
             const length = lengthStr != null ? Number.parseInt(lengthStr, 10) : 0;
