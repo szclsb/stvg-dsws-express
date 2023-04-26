@@ -2,7 +2,7 @@ import React from "react";
 import AthleteItem from "./AthleteItem";
 import AthleteGroupItem from "./AthleteGroupItem";
 import {dailyMinutes, printTime, Time} from "../models/planning";
-import {RegistrationPlanning} from "../models/dto";
+import {RunPlanning} from "../models/dto";
 import "../main.css"
 import {em, pad, seq} from "../ui-utils";
 
@@ -12,7 +12,7 @@ interface TrackProperties {
     itemHeight: number,
     itemWidth: number,
     tracks: number;
-    plannings: RegistrationPlanning[];
+    plannings: RunPlanning[];
 }
 
 function Tracks(props: TrackProperties) {
@@ -89,7 +89,7 @@ function Tracks(props: TrackProperties) {
     );
 }
 
-function createItem(p: RegistrationPlanning): JSX.Element {
+function createItem(p: RunPlanning): JSX.Element {
     return !p.groupName ? <AthleteItem athlete={p.participants[0].athlete} age={p.participants[0].age}/> :
         <AthleteGroupItem groupName={p.groupName}/>
 }

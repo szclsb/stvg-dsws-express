@@ -1,7 +1,6 @@
 import {Athlete, Sex} from "../models/athlete";
 import {Stack} from "@mui/material";
 import React from "react";
-import {RegistrationPlanning} from "../models/dto";
 import {displaySex} from "../ui-utils";
 
 function AthleteItem(props: {athlete: Athlete, age: number}) {

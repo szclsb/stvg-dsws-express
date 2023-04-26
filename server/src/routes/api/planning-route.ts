@@ -44,7 +44,7 @@ export function init(db: Db): Router {
         } else {
             // todo test.
             const plannings = collection.aggregate([
-                { $match: {planningNumber: planningNumber} },
+                { $match: {planningNumber} },
                 {
                     $lookup: {
                         from: registrationCollectionName,
