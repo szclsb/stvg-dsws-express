@@ -5,7 +5,7 @@ import {
     Alert, AlertColor,
     Box,
     Button,
-    Collapse, IconButton,
+    Collapse, Dialog, DialogContent, DialogContentText, DialogTitle, IconButton,
     List,
     ListItem,
     ListItemText,
@@ -21,6 +21,10 @@ import Tracks from "../components/Tracks";
 import {RunPlanning} from "../models/dto";
 import '../main.css';
 import {displaySex} from "../ui-utils";
+import bodyParser from "body-parser";
+import {DisciplineForm} from "../components/DisciplineForm";
+import {Item} from "../models/models";
+import {DisciplineListItem} from "../components/DisciplineListItem";
 
 const eventClient = new Client("/api/v1/event-config");
 const disciplineClient = new Client("/api/v1/disciplines");
@@ -52,7 +56,7 @@ function ConfigTab(props: { active: boolean }) {
     const [edit, setEdit] = useState<boolean>(false);
     const [eventName, setEventName] = useState<string>(undefined);
     const [eventTracks, setEventTracks] = useState<number>(undefined);
-    const [disciplines, setDiscipline] = useState<Discipline[]>(undefined);
+    const [disciplines, setDisciplines] = useState<Item<Discipline>[]>([]);
     const [notification, setNotification] = useState<{
         show: boolean,
         message: string,
@@ -62,6 +66,16 @@ function ConfigTab(props: { active: boolean }) {
         message: "",
         severity: "info"
     });
+    const [disciplineForm, setDisciplineForm] = useState<{
+        show: boolean,
+        index: number,
+        source: Discipline
+    }>({
+        show: false,
+        index: -1,
+        source: undefined
+    });
+
 
     useEffect(() => {
         if (props.active) {
@@ -77,7 +91,9 @@ function ConfigTab(props: { active: boolean }) {
             })
             .catch(err => console.warn(err));
         disciplineClient.fetch<Discipline[]>(Method.GET)
-            .then(data => setDiscipline(data))
+            .then(data => setDisciplines(data.map(d => {
+                return {content: d};
+            })))
             .catch(err => console.warn(err));
     }
 
@@ -116,8 +132,51 @@ function ConfigTab(props: { active: boolean }) {
         severity: notification.severity
     });
 
-    const onAddDiscipline = () => {
-        console.log("test")
+    const onDisciplineFormOpen = (index: number, discipline: Discipline) => setDisciplineForm({
+        show: true,
+        index,
+        source: discipline
+    });
+
+    const onDisciplineFormClose = () => setDisciplineForm({
+        show: false,
+        index: -1,
+        source: undefined
+    });
+
+    const onSaveDiscipline = (index: number, discipline: Discipline) => {
+        let data: Item<Discipline>[] = [];
+        if (index < 0) {
+            // new
+            data = [...disciplines, {
+                state: "CREATED",
+                content: discipline
+            }];
+            console.debug(`Added internal discipline ${discipline.name}`)
+        } else {
+            // edit
+            data = [...disciplines];
+            data[index] = {
+                state: "EDITED",
+                content: discipline
+            }
+        }
+        setDisciplines(data);
+        onDisciplineFormClose();
+    };
+
+    const onDeleteDiscipline = (index: number) => {
+        const source = disciplines[index]
+        const data = [...disciplines];
+        if (source.state !== "CREATED") {
+            data[index] = {
+                state: "DELETED",
+                content: source.content
+            }
+        } else {
+            data.splice(index, 1);
+        }
+        setDisciplines(data);
     }
 
     const footer = !edit
@@ -148,36 +207,23 @@ function ConfigTab(props: { active: boolean }) {
                                   justifyContent="space-between"
                                   alignItems="center">
                 <div>Disziplinen</div>
-                {!edit ? undefined : <IconButton onClick={onAddDiscipline}>
+                {!edit ? undefined : <IconButton onClick={() => onDisciplineFormOpen(-1, undefined)}>
                     <Add color="primary"/>
                 </IconButton>}
             </Box>}>
-                {disciplines?.map(discipline => <div>
+                {disciplines?.map((item, i) => <div>
                     <ListItem sx={{width: 1}}>
-                        <Stack sx={{
-                            border: '0.1em solid black',
-                            borderRadius: '1em',
-                            padding: '1em',
-                            width: 1
-                        }}>
-                            <Box display="flex"
-                                 justifyContent="space-between"
-                                 alignItems="center">
-                                <div>{discipline.name}</div>
-                                {!edit ? undefined : <Stack direction="row">
-                                    <IconButton><Delete color="error"/></IconButton>
-                                    <IconButton><Edit color="secondary"/></IconButton>
-                                    <IconButton><Add color="primary"/></IconButton>
-                                </Stack>}
-                            </Box>
-                            <div>{discipline.minRegistrations ?? 0} - {discipline.maxRegistrations ?? "∞"} erforderliche
-                                Anmeldungen
-                            </div>
-                        </Stack>
+                        <DisciplineListItem show={item.state !== "DELETED"}
+                                            edit={edit}
+                                            index={i}
+                                            discipline={item.content}
+                                            onDelete={() => onDeleteDiscipline(i)}
+                                            onEdit={() => onDisciplineFormOpen(i, item.content)}
+                                            onCategoryAdd={() => console.debug("test")}/>
                     </ListItem>
-                    <Collapse in={true}>
+                    {item.state === "DELETED" ? undefined : <Collapse in={true}>
                         <List disablePadding>
-                            {discipline.categories?.map(cat => <ListItem sx={{
+                            {item.content.categories?.map(cat => <ListItem sx={{
                                 width: 1
                             }}>
                                 <Stack sx={{
@@ -201,7 +247,7 @@ function ConfigTab(props: { active: boolean }) {
                                 </Stack>
                             </ListItem>)}
                         </List>
-                    </Collapse>
+                    </Collapse>}
                 </div>)}
             </List>
             {footer}
@@ -210,16 +256,28 @@ function ConfigTab(props: { active: boolean }) {
                     {notification.message}
                 </Alert>
             </Snackbar>
+            <Dialog open={disciplineForm.show} onClose={onDisciplineFormClose}>
+                <DialogTitle>Disziplin</DialogTitle>
+                <DialogContent>
+                    <DisciplineForm discipline={disciplineForm.source}
+                                    onSave={(discipline) => onSaveDiscipline(disciplineForm.index, discipline)}
+                                    onCancel={onDisciplineFormClose}/>
+                </DialogContent>
+            </Dialog>
         </Stack>
     );
 }
 
-function RegistrationTab(props: { active: boolean }) {
+function RegistrationTab(props: {
+    active: boolean
+}) {
     const [plannings, setPlannings] = useState<RunPlanning[]>([]);
 }
 
 
-function PlanningTab(props: { active: boolean }) {
+function PlanningTab(props: {
+    active: boolean
+}) {
     const [plannings, setPlannings] = useState<RunPlanning[]>([]);
 
     useEffect(() => {
