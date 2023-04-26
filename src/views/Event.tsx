@@ -5,7 +5,7 @@ import {
     Alert, AlertColor,
     Box,
     Button,
-    Collapse,
+    Collapse, IconButton,
     List,
     ListItem,
     ListItemText,
@@ -15,12 +15,12 @@ import {
     Tabs,
     TextField
 } from "@mui/material";
+import {Add, Edit, Delete} from '@mui/icons-material';
 import {Discipline} from "../models/discipline";
-import {Planning} from "../models/planning";
-import {Athlete} from "../models/athlete";
 import Tracks from "../components/Tracks";
 import {RunPlanning} from "../models/dto";
 import '../main.css';
+import {displaySex} from "../ui-utils";
 
 const eventClient = new Client("/api/v1/event-config");
 const disciplineClient = new Client("/api/v1/disciplines");
@@ -90,7 +90,7 @@ function ConfigTab(props: { active: boolean }) {
         eventClient.fetch<EventConfig>(Method.PUT, "63eea5bbc350bea3d7ada318", {
             eventName,
             tracks: eventTracks
-        }).then(_ =>  setNotification({
+        }).then(_ => setNotification({
             show: true,
             message: "Änderungen erfolgreich gespeichert",
             severity: "success"
@@ -110,7 +110,15 @@ function ConfigTab(props: { active: boolean }) {
     const onEventNameChange = (e: ChangeEvent<HTMLInputElement>) => setEventName(e.target.value);
     const onEventTracksChange = (e: ChangeEvent<HTMLInputElement>) => setEventTracks(Number.parseInt(e.target.value, 10));
 
-    const onNotificationClose = () => setNotification({show: false, message: notification.message, severity: notification.severity})
+    const onNotificationClose = () => setNotification({
+        show: false,
+        message: notification.message,
+        severity: notification.severity
+    });
+
+    const onAddDiscipline = () => {
+        console.log("test")
+    }
 
     const footer = !edit
         ? <Button variant="contained" color="primary" onClick={onEdit}>Bearbeiten</Button>
@@ -129,22 +137,68 @@ function ConfigTab(props: { active: boolean }) {
             }} InputProps={{
                 disabled: !edit,
             }}/>
-            <TextField label="Bahnen" value={eventTracks} type="number" onChange={onEventTracksChange} InputLabelProps={{
-                shrink: true
-            }} InputProps={{
+            <TextField label="Bahnen" value={eventTracks} type="number" onChange={onEventTracksChange}
+                       InputLabelProps={{
+                           shrink: true
+                       }} InputProps={{
                 disabled: !edit,
             }}/>
 
-            <List subheader="Disziplinen">
+            <List subheader={<Box display="flex"
+                                  justifyContent="space-between"
+                                  alignItems="center">
+                <div>Disziplinen</div>
+                {!edit ? undefined : <IconButton onClick={onAddDiscipline}>
+                    <Add color="primary"/>
+                </IconButton>}
+            </Box>}>
                 {disciplines?.map(discipline => <div>
-                    <ListItem>
-                        <ListItemText primary={discipline.name}
-                                      secondary={`${discipline.minRegistrations} - ${discipline.maxRegistrations} erforderliche Anmeldungen`}/>
+                    <ListItem sx={{width: 1}}>
+                        <Stack sx={{
+                            border: '0.1em solid black',
+                            borderRadius: '1em',
+                            padding: '1em',
+                            width: 1
+                        }}>
+                            <Box display="flex"
+                                 justifyContent="space-between"
+                                 alignItems="center">
+                                <div>{discipline.name}</div>
+                                {!edit ? undefined : <Stack direction="row">
+                                    <IconButton><Delete color="error"/></IconButton>
+                                    <IconButton><Edit color="secondary"/></IconButton>
+                                    <IconButton><Add color="primary"/></IconButton>
+                                </Stack>}
+                            </Box>
+                            <div>{discipline.minRegistrations ?? 0} - {discipline.maxRegistrations ?? "∞"} erforderliche
+                                Anmeldungen
+                            </div>
+                        </Stack>
                     </ListItem>
                     <Collapse in={true}>
                         <List disablePadding>
-                            {discipline.categories?.map(cat => <ListItem sx={{pl: 4}}>
-                                <ListItemText primary={cat.name} secondary={`${cat.distance}m`}/>
+                            {discipline.categories?.map(cat => <ListItem sx={{
+                                width: 1
+                            }}>
+                                <Stack sx={{
+                                    ml: 4,
+                                    border: '0.1em solid black',
+                                    borderRadius: '1em',
+                                    padding: '1em',
+                                    width: 1
+                                }}>
+                                    <Box display="flex"
+                                         justifyContent="space-between"
+                                         alignItems="center">
+                                        <div>{cat.name}</div>
+                                        {!edit ? undefined : <Stack direction="row">
+                                            <IconButton><Delete color="error"/></IconButton>
+                                            <IconButton><Edit color="secondary"/></IconButton>
+                                        </Stack>}
+                                    </Box>
+                                    <div>{displaySex(cat.sex) ?? "Offen"}: {cat.minAge ?? 0} - {cat.maxAge ?? "∞"}</div>
+                                    <div>{cat.distance}m</div>
+                                </Stack>
                             </ListItem>)}
                         </List>
                     </Collapse>
@@ -152,7 +206,7 @@ function ConfigTab(props: { active: boolean }) {
             </List>
             {footer}
             <Snackbar open={notification.show} autoHideDuration={5000} onClose={onNotificationClose}>
-                <Alert severity={notification.severity} sx={{ width: '100%' }}>
+                <Alert severity={notification.severity} sx={{width: '100%'}}>
                     {notification.message}
                 </Alert>
             </Snackbar>
