@@ -36,6 +36,7 @@ function Event() {
 }
 
 function ConfigTab(props: { active: boolean }) {
+    const [edit, setEdit] = useState<boolean>(false);
     const [config, setConfig] = useState<EventConfig>(undefined);
     const [disciplines, setDiscipline] = useState<Discipline[]>(undefined);
 
@@ -50,18 +51,34 @@ function ConfigTab(props: { active: boolean }) {
         }
     }, [props]);
 
+    const onEdit = () => setEdit(true);
+    const onCancel = () => setEdit(false);
+    const onConfirm = () => {
+        // todo save
+        setEdit(false);
+    }
+
+    const footer = !edit
+        ? <Button variant="contained" color="primary" onClick={onEdit}>Bearbeiten</Button>
+        : <Box display="flex"
+               justifyContent="space-between"
+               alignItems="center">
+            <Button variant="outlined" color="error" onClick={onCancel}>Zurück</Button>
+            <Button variant="contained" color="success" onClick={onConfirm}>Speichern</Button>
+        </Box>
+
     return !props.active ? undefined : (
         <Stack spacing={2}>
             <h3>Anlass Konfiguration</h3>
-            <TextField label="Name" defaultValue="" value={config?.eventName} InputLabelProps={{
+            <TextField label="Name" defaultValue={config?.eventName}  /* value={config?.eventName} */ InputLabelProps={{
                 shrink: true
             }} InputProps={{
-                readOnly: true,
+                disabled: !edit,
             }}/>
-            <TextField label="Bahnen" defaultValue="" value={config?.tracks} InputLabelProps={{
+            <TextField label="Bahnen" defaultValue={config?.tracks} /* value={config?.tracks} */ InputLabelProps={{
                 shrink: true
             }} InputProps={{
-                readOnly: true,
+                disabled: !edit,
             }}/>
 
             <List subheader="Disziplinen">
@@ -79,11 +96,12 @@ function ConfigTab(props: { active: boolean }) {
                     </Collapse>
                 </div>)}
             </List>
+            {footer}
         </Stack>
     );
 }
 
-function RegistrationTab(props: {active: boolean}) {
+function RegistrationTab(props: { active: boolean }) {
     const [plannings, setPlannings] = useState<RunPlanning[]>([]);
 }
 
