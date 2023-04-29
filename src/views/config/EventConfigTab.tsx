@@ -15,13 +15,13 @@ import {
 import {Add} from "@mui/icons-material";
 import {EventConfig, Category, Discipline} from "../../models/event-config";
 import {Client, Method} from "../../client";
-import {CategoryForm} from "../../components/CategoryForm";
-import {DisciplineForm} from "../../components/DisciplineForm";
+import {CategoryForm} from "../../forms/CategoryForm";
+import {DisciplineForm} from "../../forms/DisciplineForm";
 import {CategoryListItem} from "../../components/CategoryListItem";
 import {DisciplineListItem} from "../../components/DisciplineListItem";
 import '../../main.css';
 import {LocalDate} from "../../models/models";
-import LocalDatePicker from "./LocalDatePicker";
+import LocalDatePicker from "../../components/LocalDatePicker";
 
 const eventClient = new Client("/api/v1/event-config");
 
