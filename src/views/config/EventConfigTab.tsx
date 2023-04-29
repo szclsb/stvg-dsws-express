@@ -21,6 +21,7 @@ import {CategoryListItem} from "../../components/CategoryListItem";
 import {DisciplineListItem} from "../../components/DisciplineListItem";
 import '../../main.css';
 import {LocalDate} from "../../models/models";
+import LocalDatePicker from "./LocalDatePicker";
 
 const eventClient = new Client("/api/v1/event-config");
 
@@ -207,6 +208,7 @@ function EventConfigTab(props: { active: boolean }) {
             }} InputProps={{
                 disabled: !edit,
             }}/>
+            <LocalDatePicker readOnly={!edit} data={eventDate} onChange={setEventDate} />
             <TextField label="Bahnen" value={tracks} type="number" onChange={onEventTracksChange}
                        InputLabelProps={{
                            shrink: true
