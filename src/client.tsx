@@ -14,7 +14,7 @@ export class Client {
         this.rootUrl = rootUrl;
     }
 
-    async fetch<T>(method: Method, url?: string, body?: any): Promise<T> {
+    async fetch<T>(method: Method, url?: string, body?: any, onLocation?: (url?: string) => any): Promise<T> {
         const effectiveUrl = !url ? this.rootUrl : `${this.rootUrl}/${url}`
         return fetch(effectiveUrl, {
             headers: {
@@ -26,6 +26,10 @@ export class Client {
         }).then(res => {
             if (res.status >= 400) {
                 throw new Error(res.statusText)
+            }
+            const locationStr =  res.headers.get("Location")
+            if (locationStr != null && onLocation) {
+                onLocation(locationStr);
             }
             const lengthStr =  res.headers.get("Content-Length")
             const length = lengthStr != null ? Number.parseInt(lengthStr, 10) : 0;

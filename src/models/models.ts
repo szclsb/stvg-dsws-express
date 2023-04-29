@@ -1,7 +1,7 @@
 import {required, validate, validateInteger} from "../validation/validation-utils";
 
 export type WithID<T> = T & {
-    _id: string;
+    _id?: string;
 }
 
 export type Validation<T> = {

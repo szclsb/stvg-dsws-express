@@ -1,6 +1,11 @@
 import {LocalTime} from "./models";
 import {Athlete} from "./athlete";
 
+export interface Group {
+    groupName: string;
+    members: Athlete[];
+}
+
 export interface Run {
     disciplineName: string;
     categoryName: string | undefined;
@@ -11,6 +16,7 @@ export interface Run {
         age: number
     }[];
 }
+
 
 export interface RunPlanning extends Run {
     startTime: LocalTime;
