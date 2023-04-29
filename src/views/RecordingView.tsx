@@ -2,16 +2,16 @@ import React, {useEffect, useState} from 'react';
 import {Box, Button, ButtonGroup, Stack, Tab, Tabs, TextField} from "@mui/material";
 import {RunPlanning} from "../models/dto";
 import Tracks from "../components/Tracks";
-import {displaySex, seq} from "../ui-utils";
-import {printTime} from "../models/planning";
+import {displaySex, printTime, seq} from "../ui-utils";
 import {Client, Method} from "../client";
 import {useNavigate} from "react-router-dom";
+import '../main.css';
 
 const planningClient = new Client("/api/v1/planning");
 const recordingClient = new Client("/api/v1/recordingClient");
 
 
-function Recording() {
+function RecordingView() {
     const queryParams = new URLSearchParams(window.location.search)
     const planningNumberParam = queryParams.get("pn")
     const planningNumber = Number.parseInt(planningNumberParam, 10);
@@ -124,4 +124,4 @@ function PlanningTab(props: { active: boolean, tracks: number }) {
     );
 }
 
-export default Recording;
+export default RecordingView;

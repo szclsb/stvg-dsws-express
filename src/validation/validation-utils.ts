@@ -4,6 +4,7 @@ import {DBRef, ObjectId} from "bson";
 
 const stringChecker = new RegExp('^[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+$');
 const textChecker = new RegExp('^[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+(\\s[A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+)*$');
+const numTextChecker = new RegExp('^[0-9A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+(\\s[0-9A-Za-zÀ-ÿČčĎďĚěŇňŘřŠšŤťŮůŽžŐőŰűĞğİıŞş]+)*$');
 const emailChecker = new RegExp('^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$');
 
 export async function validateString(str: any): Promise<string | undefined> {
@@ -23,6 +24,18 @@ export async function validateText(text: any): Promise<string | undefined> {
         if (text === undefined || text === null) {
             resolve(undefined);
         } else if (typeof text === "string" && textChecker.test(text as string)) {
+            resolve(text.trim())
+        } else {
+            reject(`text '${text}' does not match`)
+        }
+    });
+}
+
+export async function validateNumText(text: any): Promise<string | undefined> {
+    return new Promise((resolve, reject) => {
+        if (text === undefined || text === null) {
+            resolve(undefined);
+        } else if (typeof text === "string" && numTextChecker.test(text as string)) {
             resolve(text.trim())
         } else {
             reject(`text '${text}' does not match`)
@@ -84,20 +97,20 @@ export async function validateNumber(value?: any, min?: number, max?: number): P
     });
 }
 
-export async function validateDate(value?: any): Promise<Date | undefined> {
-    return new Promise((resolve, reject) => {
-        if (value === undefined || value === null) {
-            resolve(undefined);
-        } else {
-            const m = Date.parse(value as string);
-            if (Number.isNaN(m)) {
-                reject(`'${value}' is not a date`);
-            } else {
-                resolve(new Date(m));
-            }
-        }
-    });
-}
+// export async function validateDate(value?: any): Promise<Date | undefined> {
+//     return new Promise((resolve, reject) => {
+//         if (value === undefined || value === null) {
+//             resolve(undefined);
+//         } else {
+//             const m = Date.parse(value as string);
+//             if (Number.isNaN(m)) {
+//                 reject(`'${value}' is not a date`);
+//             } else {
+//                 resolve(new Date(m));
+//             }
+//         }
+//     });
+// }
 
 export async function validateObjectId(value?: any): Promise<ObjectId | undefined> {
     return new Promise((resolve, reject) => {

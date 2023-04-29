@@ -1,4 +1,4 @@
-import {Category, Discipline} from "../models/discipline";
+import {Category, Discipline} from "../models/event-config";
 import {ChangeEvent, useState} from "react";
 import {Box, Button, Stack, TextField} from "@mui/material";
 import React from "react";

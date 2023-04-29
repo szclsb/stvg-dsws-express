@@ -7,10 +7,10 @@ import {
 import './index.css';
 import App from './views/App';
 import reportWebVitals from './reportWebVitals';
-import Event from "./views/Event";
-import Recording from "./views/Recording";
-import Register from "./views/Register";
-import Results from "./views/Results";
+import RecordingView from "./views/RecordingView";
+import RegisterView from "./views/RegisterView";
+import ResultsView from "./views/ResultsView";
+import EventView from "./views/config/EventView";
 
 const router = createBrowserRouter([
     {
@@ -19,19 +19,19 @@ const router = createBrowserRouter([
     },
     {
         path: "/event",
-        element: <Event />
+        element: <EventView />
     },
     {
         path: "/admin",
-        element: <Recording />
+        element: <RecordingView />
     },
     {
         path: "/register",
-        element: <Register />
+        element: <RegisterView />
     },
     {
         path: "/results",
-        element: <Results />
+        element: <ResultsView />
     }
 ]);
 

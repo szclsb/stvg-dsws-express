@@ -24,6 +24,9 @@ export class Client {
             method,
             body: !body ? undefined : JSON.stringify(body)
         }).then(res => {
+            if (res.status >= 400) {
+                throw new Error(res.statusText)
+            }
             const lengthStr =  res.headers.get("Content-Length")
             const length = lengthStr != null ? Number.parseInt(lengthStr, 10) : 0;
             const contentType = res.headers.get("Content-Type")

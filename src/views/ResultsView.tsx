@@ -1,7 +1,8 @@
 import React from 'react';
 import {Stack} from "@mui/material";
+import '../main.css';
 
-function Results() {
+function ResultsView() {
     return (
         <Stack>
             <h3>Resultate</h3>
@@ -9,4 +10,4 @@ function Results() {
     );
 }
 
-export default Results;
+export default ResultsView;

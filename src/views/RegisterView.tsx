@@ -1,7 +1,8 @@
 import React from 'react';
 import {Stack} from "@mui/material";
+import '../main.css';
 
-function Register() {
+function RegisterView() {
   return (
     <Stack>
       <h3>Anmeldung</h3>
@@ -9,4 +10,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default RegisterView;

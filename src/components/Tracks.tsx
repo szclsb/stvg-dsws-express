@@ -1,10 +1,10 @@
 import React from "react";
 import AthleteItem from "./AthleteItem";
 import AthleteGroupItem from "./AthleteGroupItem";
-import {dailyMinutes, printTime, Time} from "../models/planning";
+import {dailyMinutes, LocalTime} from "../models/models";
 import {RunPlanning} from "../models/dto";
 import "../main.css"
-import {em, pad, seq} from "../ui-utils";
+import {em, pad, printTime, seq} from "../ui-utils";
 
 interface TrackProperties {
     topHeaderHeight: number,
@@ -16,16 +16,16 @@ interface TrackProperties {
 }
 
 function Tracks(props: TrackProperties) {
-    const startTime: Time = {hour: 10, minute: 0}
-    const sepTime: Time = {hour: 0, minute: 15}
+    const startTime: LocalTime = {hour: 10, minute: 0}
+    const sepTime: LocalTime = {hour: 0, minute: 15}
     const timesCount: number = 4;
-    const timesSeq = new Array(timesCount).fill(1).map((_, i): Time => {
+    const timesSeq = new Array(timesCount).fill(1).map((_, i): LocalTime => {
         return {
             hour: startTime.hour + i * sepTime.hour,
             minute: startTime.minute + i * sepTime.minute,
         }
     });
-    const getTimeM = (t: Time): number => {
+    const getTimeM = (t: LocalTime): number => {
         const start = dailyMinutes(startTime);
         const diff = dailyMinutes(sepTime);
         const x = dailyMinutes(t);

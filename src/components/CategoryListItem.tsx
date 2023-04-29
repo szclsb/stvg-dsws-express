@@ -1,7 +1,7 @@
 import {Box, IconButton, Stack} from "@mui/material";
 import {Delete, Edit} from "@mui/icons-material";
 import React from "react";
-import {Category, Discipline} from "../models/discipline";
+import {Category, Discipline} from "../models/event-config";
 import {displaySex} from "../ui-utils";
 
 export function CategoryListItem(props: {

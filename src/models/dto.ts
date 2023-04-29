@@ -1,4 +1,4 @@
-import {Time} from "./planning";
+import {LocalTime} from "./models";
 import {Athlete} from "./athlete";
 
 export interface Run {
@@ -7,13 +7,14 @@ export interface Run {
     groupName: string | undefined;
     participants: {
         athlete: Athlete,
+        startNumber: number,
         age: number
     }[];
 }
 
 export interface RunPlanning extends Run {
-    startTime: Time;
-    endTime: Time;
+    startTime: LocalTime;
+    endTime: LocalTime;
     beginTrack: number;
     endTrack: number;
 }

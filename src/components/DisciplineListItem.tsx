@@ -1,7 +1,7 @@
 import {Box, IconButton, Stack} from "@mui/material";
 import {Add, Delete, Edit} from "@mui/icons-material";
 import React from "react";
-import {Discipline} from "../models/discipline";
+import {Discipline} from "../models/event-config";
 
 export function DisciplineListItem(props: {
     show: boolean,

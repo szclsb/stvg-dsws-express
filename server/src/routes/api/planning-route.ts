@@ -4,9 +4,9 @@ import {Registration, validateRegistration} from "../../../../src/models/registr
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
 import {validateArray} from "../../../../src/validation/validation-utils";
-import {validatePlanning} from "../../../../src/models/planning";
+import {validatePlanning} from "../../../../src/models/run";
+import {collectionName as configCollectionName} from "./event-config-route"
 import {collectionName as registrationCollectionName} from "./registration-route"
-import {collectionName as disciplineCollectionName} from "./discipline-route"
 import {collectionName as athleteCollectionName} from "./athlete-route"
 import {RunPlanning} from "../../../../src/models/dto";
 
@@ -53,7 +53,7 @@ export function init(db: Db): Router {
                         pipeline: [
                             {
                                 $lookup: {
-                                    from: disciplineCollectionName,
+                                    from: configCollectionName,
                                     localField: "disciplineId",
                                     foreignField: "_id",
                                     pipeline: [
@@ -163,6 +163,7 @@ function testPlanning(planningNumber: number): RunPlanning {
                     sex: 'MALE',
                     yearOfBirth: 1993
                 },
+                startNumber: 1,
                 age: 30
             }
         ]
