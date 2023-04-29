@@ -11,7 +11,7 @@ function convert(localDate?: LocalDate): Moment | undefined {
     return !localDate ? undefined : moment(new Date(localDate.year, localDate.month - 1, localDate.day));
 }
 
-function LocalDatePicker(props: { data?: LocalDate, readOnly: boolean, onChange: (date?: LocalDate) => any}) {
+function LocalDatePicker(props: {label: string, data?: LocalDate, readOnly: boolean, onChange: (date?: LocalDate) => any}) {
     const [date, setDate] = useState<Moment | null>(convert(props.data));
 
     useEffect(() => {
@@ -30,7 +30,7 @@ function LocalDatePicker(props: { data?: LocalDate, readOnly: boolean, onChange:
     }
 
     return (<LocalizationProvider dateAdapter={AdapterMoment} adapterLocale={'de-ch'}>
-        <DatePicker readOnly={props.readOnly} onChange={onDateChange} value={moment(date)}/>
+        <DatePicker label={props.label} disabled={props.readOnly} onChange={onDateChange} value={moment(date)}/>
     </LocalizationProvider>);
 }
 

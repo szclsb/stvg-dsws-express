@@ -208,7 +208,7 @@ function EventConfigTab(props: { active: boolean }) {
             }} InputProps={{
                 disabled: !edit,
             }}/>
-            <LocalDatePicker readOnly={!edit} data={eventDate} onChange={setEventDate} />
+            <LocalDatePicker label="Datum" readOnly={!edit} data={eventDate} onChange={setEventDate} />
             <TextField label="Bahnen" value={tracks} type="number" onChange={onEventTracksChange}
                        InputLabelProps={{
                            shrink: true
