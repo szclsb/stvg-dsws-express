@@ -114,18 +114,26 @@ function EventConfigTab(props: { active: boolean }) {
         severity: notification.severity
     });
 
-    const onDisciplineFormOpen = (discipline: Discipline, index: number) => setDisciplineForm({
-        show: true,
-        index,
-        source: discipline
-    });
+    const onDisciplineFormOpen = (discipline: Discipline, index: number) =>{
+        console.debug(`editing discipline at ${index}`)
+        console.debug(discipline);
+        setDisciplineForm({
+            show: true,
+            index,
+            source: discipline
+        });
+    }
 
-    const onCategoryFormOpen = (category: Category, indexCategory: number, indexDiscipline: number) => setCategoryForm({
-        show: true,
-        indexCategory,
-        indexDiscipline,
-        source: category
-    });
+    const onCategoryFormOpen = (category: Category, indexCategory: number, indexDiscipline: number) => {
+        console.debug(`editing category at ${indexCategory} of discipline at ${indexDiscipline}`)
+        console.debug(category);
+        setCategoryForm({
+            show: true,
+            indexCategory,
+            indexDiscipline,
+            source: category
+        });
+    }
 
     const onDisciplineFormClose = () => setDisciplineForm({
         show: false,
@@ -141,7 +149,7 @@ function EventConfigTab(props: { active: boolean }) {
     });
 
     const onSaveDiscipline = (discipline: Discipline, index: number) => {
-        let data: Discipline[] = [];
+        let data: Discipline[];
         if (index < 0) {
             // new
             data = [...disciplines, discipline];
@@ -149,6 +157,7 @@ function EventConfigTab(props: { active: boolean }) {
         } else {
             // edit
             data = [...disciplines];
+            discipline.categories = data[index].categories;
             data[index] = discipline;
         }
         setDisciplines(data);
