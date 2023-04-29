@@ -1,24 +1,24 @@
 import {LocalDate} from "../../models/models";
 import {useEffect, useState} from "react";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider"
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs"
+import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment"
 import {DatePicker} from "@mui/x-date-pickers/DatePicker"
 import React from "react";
-import dayjs, {Dayjs} from "dayjs";
-import 'dayjs/locale/de';
+import moment, {Moment} from "moment";
+import "moment/locale/de-ch"
 
-function convert(localDate?: LocalDate): Dayjs | undefined {
-    return !localDate ? undefined : dayjs(new Date(localDate.year, localDate.month - 1, localDate.day));
+function convert(localDate?: LocalDate): Moment | undefined {
+    return !localDate ? undefined : moment(new Date(localDate.year, localDate.month - 1, localDate.day));
 }
 
 function LocalDatePicker(props: { data?: LocalDate, readOnly: boolean, onChange: (date?: LocalDate) => any}) {
-    const [date, setDate] = useState<Dayjs | null>(convert(props.data));
+    const [date, setDate] = useState<Moment | null>(convert(props.data));
 
     useEffect(() => {
         setDate(convert(props.data));
     }, [props.data]);
 
-    const onDateChange = (value: Dayjs | null) => {
+    const onDateChange = (value: Moment | null) => {
         // setDate(date);
         if (value) {
             props.onChange({
@@ -29,8 +29,8 @@ function LocalDatePicker(props: { data?: LocalDate, readOnly: boolean, onChange:
         }
     }
 
-    return (<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'de'}>
-        <DatePicker readOnly={props.readOnly} onChange={onDateChange} value={dayjs(date)}/>
+    return (<LocalizationProvider dateAdapter={AdapterMoment} adapterLocale={'de-ch'}>
+        <DatePicker readOnly={props.readOnly} onChange={onDateChange} value={moment(date)}/>
     </LocalizationProvider>);
 }
 
