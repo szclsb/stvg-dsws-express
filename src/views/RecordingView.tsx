@@ -75,7 +75,7 @@ function RecordingTab(props: { active: boolean, planningNumber: number, tracks: 
                         text = `Gruppe: ${planning.groupName}`;
                     } else if (planning) {
                         const participant = planning.participants[0];
-                        text = `${displaySex(participant.athlete.sex)}/${participant.age} ${participant.athlete.firstName} ${participant.athlete.lastName}`;
+                        text = `SN:${participant.athlete.startNumber} ${displaySex(participant.athlete.sex)}/${participant.age} ${participant.athlete.firstName} ${participant.athlete.lastName}`;
                     }
                     return (<Stack direction={"row"} spacing={2} alignContent={"center"}>
                         <Stack spacing={1}>
