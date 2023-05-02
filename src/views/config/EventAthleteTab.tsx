@@ -16,15 +16,16 @@ import {
 import {Add} from "@mui/icons-material";
 import {Athlete} from "../../models/athlete";
 import EditableListItem from "../../components/EditableListItem";
-import AthleteItem from "../../components/AthleteItem";
+import {AthleteItem} from "../../components/AthleteItem";
 import {AthleteForm} from "../../forms/AthleteForm";
 import {Client, Method} from "../../client";
 import {WithID} from "../../models/models";
+import StartNumberPicker from "../../components/StartNumberPicker";
 
 
 const athleteClient = new Client("/api/v1/athletes");
 
-function EventAthleteTab(props: {active: boolean}) {
+function EventAthleteTab(props: { active: boolean }) {
     const [edit, setEdit] = useState<boolean>(true);
     const [year, setYear] = useState<number>(2023); // fixme
     const [athletes, setAthletes] = useState<WithID<Athlete>[]>([]);
@@ -119,7 +120,7 @@ function EventAthleteTab(props: {active: boolean}) {
 
     const onDeleteAthlete = (index: number) => {
         const athletesCopy = [...athletes];
-        const remove= athletesCopy.splice(index, 1)[0];
+        const remove = athletesCopy.splice(index, 1)[0];
         athleteClient.fetch<Athlete>(Method.DELETE, remove._id).then(() => {
             setNotification({
                 show: true,
@@ -158,7 +159,26 @@ function EventAthleteTab(props: {active: boolean}) {
                     <EditableListItem edit={edit}
                                       onDelete={() => onDeleteAthlete(i)}
                                       onEdit={() => onAthleteFormOpen(i, athlete)}>
-                        <AthleteItem athlete={athlete} age={year - athlete.yearOfBirth} />
+                        <AthleteItem athlete={athlete} age={year - athlete.yearOfBirth}/>
+                        <StartNumberPicker startNumber={athlete.startNumber} onAssign={(startNumber) => {
+                            athleteClient.fetch<any>(Method.PUT, `${athlete._id}/start-number`, {startNumber})
+                                .then(() => {
+                                    setNotification({
+                                        show: true,
+                                        message: "Startnummer erfolgreich gespeichert",
+                                        severity: "success"
+                                    });
+                                    athlete.startNumber = startNumber;
+                                    setAthletes([...athletes])
+                                }).catch(err => {
+                                console.warn(err);
+                                setNotification({
+                                    show: true,
+                                    message: "Startnummer speichern fehlgeschlagen.",
+                                    severity: "error"
+                                });
+                            })
+                        }}/>
                     </EditableListItem>
                 </ListItem>
             </div>)}
@@ -173,7 +193,7 @@ function EventAthleteTab(props: {active: boolean}) {
             <DialogContent>
                 <AthleteForm source={athleteForm.source}
                              onSave={(athlete) => onSaveAthlete(athlete, athleteForm.id, athleteForm.index)}
-                             onCancel={onAthleteFormClose} />
+                             onCancel={onAthleteFormClose}/>
             </DialogContent>
         </Dialog>
     </Stack>);

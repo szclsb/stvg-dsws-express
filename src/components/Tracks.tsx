@@ -1,5 +1,5 @@
 import React from "react";
-import AthleteItem from "./AthleteItem";
+import {AthleteItemReady} from "./AthleteItem";
 import AthleteGroupItem from "./AthleteGroupItem";
 import {dailyMinutes, LocalTime} from "../models/models";
 import {RunPlanning} from "../models/dto";
@@ -90,7 +90,7 @@ function Tracks(props: TrackProperties) {
 }
 
 function createItem(p: RunPlanning): JSX.Element {
-    return !p.groupName ? <AthleteItem athlete={p.participants[0].athlete} age={p.participants[0].age}/> :
+    return !p.groupName ? <AthleteItemReady athlete={p.participants[0].athlete} age={p.participants[0].age}/> :
         <AthleteGroupItem groupName={p.groupName}/>
 }
 

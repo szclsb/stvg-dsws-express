@@ -163,7 +163,6 @@ function testPlanning(planningNumber: number): RunPlanning {
                     sex: 'MALE',
                     yearOfBirth: 1993
                 },
-                startNumber: 1,
                 age: 30
             }
         ]

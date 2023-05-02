@@ -12,7 +12,6 @@ export interface Run {
     groupName: string | undefined;
     participants: {
         athlete: Athlete,
-        startNumber: number,
         age: number
     }[];
 }

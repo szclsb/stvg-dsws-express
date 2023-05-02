@@ -3,7 +3,7 @@ import {ObjectID} from "bson";
 import {validateAthlete} from "../../../../src/models/athlete";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
-import {validateArray} from "../../../../src/validation/validation-utils";
+import {validateArray, validateInteger} from "../../../../src/validation/validation-utils";
 import {Registration, validateRegistration} from "../../../../src/models/registration";
 
 
@@ -45,6 +45,17 @@ export function init(db: Db): Router {
                 _id: ObjectID.createFromHexString(req.params.id as string)
             }, {
                 $set: athlete
+            }).then(() => {
+                res.status(204).send();
+            })
+        }).catch(errorCallback(res));
+    });
+    router.put("/:id/start-number", (req, res) => {
+        validateInteger(req.body?.startNumber, 0).then(startNumber => {
+            collection.findOneAndUpdate({
+                _id: ObjectID.createFromHexString(req.params.id as string)
+            }, {
+                $set: {startNumber}
             }).then(() => {
                 res.status(204).send();
             })

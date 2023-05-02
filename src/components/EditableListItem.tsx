@@ -7,7 +7,7 @@ import JSX = jsx.JSX;
 
 function EditableListItem(props: {
     edit: boolean,
-    children: JSX.Element,
+    children: JSX.Element[],
     onDelete: () => void,
     onEdit: () => void,
     onAdd?: () => void
