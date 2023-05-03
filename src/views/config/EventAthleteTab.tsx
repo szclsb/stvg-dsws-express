@@ -21,14 +21,21 @@ import {AthleteForm} from "../../forms/AthleteForm";
 import {Client, Method} from "../../client";
 import {WithID} from "../../models/models";
 import StartNumberPicker from "../../components/StartNumberPicker";
+import {Registration} from "../../models/registration";
+import {SingleRegistrationForm} from "../../forms/SingleRegistrationForm";
+import {Category, Discipline, EventConfig} from "../../models/event-config";
+import {ObjectId} from "bson";
 
 
+const eventClient = new Client("/api/v1/event-config");
 const athleteClient = new Client("/api/v1/athletes");
+const registrationClient = new Client("/api/v1/registrations");
 
 function EventAthleteTab(props: { active: boolean }) {
     const [edit, setEdit] = useState<boolean>(true);
-    const [year, setYear] = useState<number>(2023); // fixme
+    const [config, setConfig] = useState<EventConfig>(undefined);
     const [athletes, setAthletes] = useState<WithID<Athlete>[]>([]);
+    const [registrations, setRegistrations] = useState<WithID<Registration>[]>([]);
     const [notification, setNotification] = useState<{
         show: boolean,
         message: string,
@@ -47,15 +54,43 @@ function EventAthleteTab(props: { active: boolean }) {
         show: false,
         index: -1,
     });
+    const [singleRegistrationForm, setSingleRegistrationForm] = useState<{
+        show: boolean,
+        athlete?: WithID<Athlete>
+    }>({
+        show: false
+    });
 
     useEffect(() => {
+        eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
+            .then(data => {
+                setConfig(data)
+            })
+            .catch(err => {
+                console.warn(err)
+                setNotification({
+                    show: true,
+                    message: "Konfiguration laden fehlgeschlagen.",
+                    severity: "error"
+                })
+            });
         athleteClient.fetch<WithID<Athlete>[]>(Method.GET).then(data => {
             setAthletes(data)
         }).catch(err => {
             console.warn(err);
             setNotification({
                 show: true,
-                message: "Laden fehlgeschlagen.",
+                message: "Athleten laden fehlgeschlagen.",
+                severity: "error"
+            })
+        });
+        registrationClient.fetch<WithID<Registration>[]>(Method.GET).then(data => {
+            setRegistrations(data)
+        }).catch(err => {
+            console.warn(err);
+            setNotification({
+                show: true,
+                message: "Registrierungen laden fehlgeschlagen.",
                 severity: "error"
             })
         });
@@ -70,6 +105,9 @@ function EventAthleteTab(props: { active: boolean }) {
     const onAthleteFormClose = () => setAthleteForm({
         show: false,
         index: -1,
+    });
+    const onSingleRegistrationFormClose = () => setSingleRegistrationForm({
+        show: false
     });
 
     const onSaveAthlete = (athelete: Athlete, id: string, index: number) => {
@@ -110,7 +148,7 @@ function EventAthleteTab(props: { active: boolean }) {
                 console.warn(err);
                 setNotification({
                     show: true,
-                    message: "Speichern fehlgeschlagen.",
+                    message: "Athlet:in speichern fehlgeschlagen.",
                     severity: "error"
                 });
             });
@@ -132,7 +170,7 @@ function EventAthleteTab(props: { active: boolean }) {
             console.warn(err);
             setNotification({
                 show: true,
-                message: "Löschen fehlgeschlagen.",
+                message: "Athlet:in löschen fehlgeschlagen.",
                 severity: "error"
             });
         });
@@ -143,6 +181,74 @@ function EventAthleteTab(props: { active: boolean }) {
         message: notification.message,
         severity: notification.severity
     });
+
+    const onStartNumberAssign = (athlete: WithID<Athlete>, startNumber?: number) => {
+        athleteClient.fetch<any>(Method.PUT, `${athlete._id}/start-number`, {startNumber})
+            .then(() => {
+                setNotification({
+                    show: true,
+                    message: "Startnummer erfolgreich zugeweisen",
+                    severity: "success"
+                });
+                athlete.startNumber = startNumber;
+                setAthletes([...athletes])
+            }).catch(err => {
+            console.warn(err);
+            setNotification({
+                show: true,
+                message: "Startnummer zuweisen fehlgeschlagen.",
+                severity: "error"
+            });
+        });
+    }
+
+    const onSingleRegistrationSave = (athlete: WithID<Athlete>, discipline: Discipline, category?: Category) => {
+        const insert: WithID<Registration> = {
+            athleteIds: [new ObjectId(athlete._id)],
+            disciplineName: discipline.name,
+            categoryName: category?.name
+        };
+        registrationClient.fetch<any>(Method.POST, undefined, insert, location => {
+            insert._id = location.substring(location.lastIndexOf('/') + 1)
+        }).then(() => {
+            setNotification({
+                show: true,
+                message: "Einzelregistrierung erfolgreich gespeichert",
+                severity: "success"
+            });
+            setRegistrations([...registrations, insert])
+        }).catch(err => {
+            console.warn(err);
+            setNotification({
+                show: true,
+                message: "Einzelregistrierung speichern fehlgeschlagen.",
+                severity: "error"
+            });
+        });
+    }
+
+    const onSingleRegistrationDelete = (singleRegistration: WithID<Registration>) => {
+        const index = registrations.findIndex(r => r._id === singleRegistration._id);
+        if (index >= 0) {
+            registrationClient.fetch<any>(Method.DELETE, singleRegistration._id).then(() => {
+                setNotification({
+                    show: true,
+                    message: "Einzelregistrierung erfolgreich gelöscht.",
+                    severity: "success"
+                });
+                const registrationsCopy = [...registrations];
+                registrationsCopy.splice(index, 1);
+                setRegistrations(registrationsCopy);
+            }).catch(err => {
+                console.warn(err);
+                setNotification({
+                    show: true,
+                    message: "Einzelregistrierung löschen fehlgeschlagen.",
+                    severity: "error"
+                });
+            });
+        }
+    }
 
     return !props.active ? undefined : (<Stack spacing={2}>
         <h3>Anlass Konfiguration</h3>
@@ -156,29 +262,28 @@ function EventAthleteTab(props: { active: boolean }) {
         </Box>}>
             {athletes?.map((athlete, i) => <div>
                 <ListItem sx={{width: 1}}>
-                    <EditableListItem edit={edit}
+                    <EditableListItem spacing={2}
+                                      edit={edit}
                                       onDelete={() => onDeleteAthlete(i)}
                                       onEdit={() => onAthleteFormOpen(i, athlete)}>
-                        <AthleteItem athlete={athlete} age={year - athlete.yearOfBirth}/>
-                        <StartNumberPicker startNumber={athlete.startNumber} onAssign={(startNumber) => {
-                            athleteClient.fetch<any>(Method.PUT, `${athlete._id}/start-number`, {startNumber})
-                                .then(() => {
-                                    setNotification({
-                                        show: true,
-                                        message: "Startnummer erfolgreich gespeichert",
-                                        severity: "success"
-                                    });
-                                    athlete.startNumber = startNumber;
-                                    setAthletes([...athletes])
-                                }).catch(err => {
-                                console.warn(err);
-                                setNotification({
-                                    show: true,
-                                    message: "Startnummer speichern fehlgeschlagen.",
-                                    severity: "error"
-                                });
-                            })
-                        }}/>
+                        <AthleteItem athlete={athlete} age={config.date.year - athlete.yearOfBirth}/>
+                        <StartNumberPicker startNumber={athlete.startNumber}
+                                           onAssign={(startNumber) => onStartNumberAssign(athlete, startNumber)}/>
+                        <List subheader={<Box display="flex"
+                                              justifyContent="space-between"
+                                              alignItems="center">
+                            <div>Einzelanmeldung</div>
+                            {!edit ? undefined : <IconButton onClick={() => setSingleRegistrationForm({show: true, athlete})}>
+                                <Add color="primary"/>
+                            </IconButton>}
+                        </Box>}>
+                            {registrations
+                                .filter(r => !r.groupName && r.athleteIds[0].equals(athlete._id))
+                                .map(r => (<Stack spacing={2}>
+                                    <div>{r.disciplineName}</div>
+                                    <div>{r.categoryName}</div>
+                                </Stack>))}
+                        </List>
                     </EditableListItem>
                 </ListItem>
             </div>)}
@@ -194,6 +299,14 @@ function EventAthleteTab(props: { active: boolean }) {
                 <AthleteForm source={athleteForm.source}
                              onSave={(athlete) => onSaveAthlete(athlete, athleteForm.id, athleteForm.index)}
                              onCancel={onAthleteFormClose}/>
+            </DialogContent>
+        </Dialog>
+        <Dialog open={singleRegistrationForm.show} onClose={onSingleRegistrationFormClose}>
+            <DialogTitle>Einzelregistrierung</DialogTitle>
+            <DialogContent>
+                <SingleRegistrationForm disciplines={config.disciplines}
+                                        onSave={(discipline, category) => onSingleRegistrationSave(singleRegistrationForm.athlete, discipline, category)}
+                                        onCancel={onSingleRegistrationFormClose} />
             </DialogContent>
         </Dialog>
     </Stack>);
