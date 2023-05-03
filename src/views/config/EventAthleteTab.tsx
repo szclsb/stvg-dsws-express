@@ -22,7 +22,7 @@ import {Client, Method} from "../../client";
 import {WithID} from "../../models/models";
 import StartNumberPicker from "../../components/StartNumberPicker";
 import {Registration, validateRegistration} from "../../models/registration";
-import {SingleRegistrationForm} from "../../forms/SingleRegistrationForm";
+import {GroupRegistrationForm, RegistrationForm} from "../../forms/RegistrationForm";
 import {Category, Discipline, EventConfig, validateEventConfig} from "../../models/event-config";
 import {ObjectId} from "bson";
 import {validateArray, extendWithId, extendArray} from "../../validation/validation-utils";
@@ -58,6 +58,13 @@ function EventAthleteTab(props: { active: boolean }) {
     const [singleRegistrationForm, setSingleRegistrationForm] = useState<{
         show: boolean,
         athlete?: WithID<Athlete>
+    }>({
+        show: false
+    });
+    const [groupRegistrationForm, setGroupRegistrationForm] = useState<{
+        show: boolean,
+        registration?: WithID<Registration>
+        index?: number
     }>({
         show: false
     });
@@ -117,6 +124,9 @@ function EventAthleteTab(props: { active: boolean }) {
     const onSingleRegistrationFormClose = () => setSingleRegistrationForm({
         show: false
     });
+    const onGroupRegistrationFormClose = () => setGroupRegistrationForm({
+        show: false
+    });
 
     const onSaveAthlete = (athelete: Athlete, id: ObjectId, index: number) => {
         if (index < 0) {
@@ -138,7 +148,7 @@ function EventAthleteTab(props: { active: boolean }) {
                 console.warn(err);
                 setNotification({
                     show: true,
-                    message: "Speichern fehlgeschlagen.",
+                    message: "Athlet:in speichern fehlgeschlagen.",
                     severity: "error"
                 });
             });
@@ -191,12 +201,6 @@ function EventAthleteTab(props: { active: boolean }) {
             });
         });
     }
-
-    const onNotificationClose = () => setNotification({
-        show: false,
-        message: notification.message,
-        severity: notification.severity
-    });
 
     const onStartNumberAssign = (athlete: WithID<Athlete>, startNumber?: number) => {
         athleteClient.fetch<any>(Method.PUT, {
@@ -274,6 +278,83 @@ function EventAthleteTab(props: { active: boolean }) {
         }
     }
 
+    const onGroupRegistrationSave = (groupRegistration: WithID<Registration>, index?: number) => {
+        if (!groupRegistration._id) {
+            // add new
+            registrationClient.fetch<any>(Method.POST, {
+                body: groupRegistration,
+                onLocation: location => {
+                    groupRegistration._id = new ObjectId(location.substring(location.lastIndexOf('/') + 1))
+                }
+            }).then(() => {
+                setNotification({
+                    show: true,
+                    message: "Gruppenregistrierung erfolgreich gespeichert",
+                    severity: "success"
+                });
+                setRegistrations([...registrations, groupRegistration]);
+            }).catch(err => {
+                console.warn(err);
+                setNotification({
+                    show: true,
+                    message: "Gruppenregistrierung speichern fehlgeschlagen.",
+                    severity: "error"
+                });
+            });
+        } else {
+            // edit
+            registrationClient.fetch<any>(Method.PUT, {
+                path: groupRegistration._id.toHexString(),
+                body: groupRegistration
+            }).then(() => {
+                setNotification({
+                    show: true,
+                    message: "Gruppenregistrierung erfolgreich gespeichert",
+                    severity: "success"
+                });
+                const registrationCopy = [...registrations];
+                registrationCopy[index] = groupRegistration;
+                setRegistrations(registrationCopy)
+            }).catch(err => {
+                console.warn(err);
+                setNotification({
+                    show: true,
+                    message: "Gruppenregistrierung speichern fehlgeschlagen.",
+                    severity: "error"
+                });
+            });
+        }
+        onGroupRegistrationFormClose();
+    }
+
+    const onGroupRegistrationDelete = (groupRegistration: WithID<Registration>, index: number) => {
+        registrationClient.fetch<any>(Method.DELETE, {
+            path: groupRegistration._id.toHexString()
+        }).then(() => {
+            setNotification({
+                show: true,
+                message: "Gruppenregistrierung erfolgreich gelöscht.",
+                severity: "success"
+            });
+            const registrationsCopy = [...registrations];
+            registrationsCopy.splice(index, 1);
+            setRegistrations(registrationsCopy);
+        }).catch(err => {
+            console.warn(err);
+            setNotification({
+                show: true,
+                message: "Gruppenregistrierung löschen fehlgeschlagen.",
+                severity: "error"
+            });
+        });
+    }
+
+    const onNotificationClose = () => setNotification({
+        show: false,
+        message: notification.message,
+        severity: notification.severity
+    });
+
     return !props.active ? undefined : (<Stack spacing={2}>
         <h3>Anlass Konfiguration</h3>
         <List subheader={<Box display="flex"
@@ -305,13 +386,49 @@ function EventAthleteTab(props: { active: boolean }) {
                             {registrations
                                 .filter(r => !r.groupName && r.athleteIds[0].equals(athlete._id))
                                 .map(r => (<ListItem>
-                                    <Chip label={`${r.disciplineName}${r.categoryName ? ` / ${r.categoryName}` : undefined}`}
-                                          onDelete={() => onSingleRegistrationDelete(r)}/>
+                                    <Chip
+                                        label={`${r.disciplineName}${r.categoryName ? ` / ${r.categoryName}` : undefined}`}
+                                        onDelete={() => onSingleRegistrationDelete(r)}/>
                                 </ListItem>))}
                         </List>
                     </EditableListItem>
                 </ListItem>
             </div>)}
+        </List>
+        <List subheader={<Box display="flex"
+                              justifyContent="space-between"
+                              alignItems="center">
+            <div>Gruppen</div>
+            {!edit ? undefined : <IconButton onClick={() => setGroupRegistrationForm({show: true})}>
+                <Add color="primary"/>
+            </IconButton>}
+        </Box>}>
+            {registrations
+                .filter(r => r.groupName)
+                .map((r, i) => (<ListItem>
+                    <EditableListItem spacing={2}
+                                      edit={edit}
+                                      onEdit={() => setGroupRegistrationForm({
+                                          show: true,
+                                          registration: r,
+                                          index: i
+                                      })}
+                                      onDelete={() => onGroupRegistrationDelete(r, i)}>
+                        <Box display="flex" flexDirection="row" alignItems="center" gap={2}>
+                            <div>{r.groupName}</div>
+                            <Chip label={`${r.disciplineName}${r.categoryName ? ` / ${r.categoryName}` : undefined}`}/>
+                        </Box>
+                        <List subheader="Mitglider">
+                            {r.athleteIds.map(athleteId => {
+                            const athlete = athletes.find(a => athleteId.equals(a._id));
+                            return <ListItem>
+                                <Chip label={<AthleteItem athlete={athlete}
+                                                          age={config.date.year - athlete.yearOfBirth}/>}/>
+                            </ListItem>;
+                        })}
+                        </List>
+                    </EditableListItem>
+                </ListItem>))}
         </List>
         <Snackbar open={notification.show} autoHideDuration={5000} onClose={onNotificationClose}>
             <Alert severity={notification.severity} sx={{width: '100%'}}>
@@ -329,9 +446,20 @@ function EventAthleteTab(props: { active: boolean }) {
         <Dialog open={singleRegistrationForm.show} onClose={onSingleRegistrationFormClose}>
             <DialogTitle>Einzelregistrierung</DialogTitle>
             <DialogContent>
-                <SingleRegistrationForm disciplines={config.disciplines}
-                                        onSave={(discipline, category) => onSingleRegistrationSave(singleRegistrationForm.athlete, discipline, category)}
-                                        onCancel={onSingleRegistrationFormClose}/>
+                <RegistrationForm disciplines={config.disciplines}
+                                  onSave={(discipline, category) => onSingleRegistrationSave(singleRegistrationForm.athlete, discipline, category)}
+                                  onCancel={onSingleRegistrationFormClose}/>
+            </DialogContent>
+        </Dialog>
+        <Dialog open={groupRegistrationForm.show} onClose={onGroupRegistrationFormClose}>
+            <DialogTitle>Gruppenregistrierung</DialogTitle>
+            <DialogContent>
+                <GroupRegistrationForm disciplines={config.disciplines}
+                                       athletes={athletes}
+                                       year={config.date.year}
+                                       registration={groupRegistrationForm.registration}
+                                       onSave={onGroupRegistrationSave}
+                                       onCancel={onGroupRegistrationFormClose}/>
             </DialogContent>
         </Dialog>
     </Stack>);
