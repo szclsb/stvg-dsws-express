@@ -3,7 +3,7 @@ import '../../main.css';
 import {
     Alert,
     AlertColor,
-    Box,
+    Box, Chip,
     Dialog,
     DialogContent,
     DialogTitle,
@@ -13,18 +13,19 @@ import {
     Snackbar,
     Stack
 } from "@mui/material";
-import {Add} from "@mui/icons-material";
-import {Athlete} from "../../models/athlete";
+import {Add, Label} from "@mui/icons-material";
+import {Athlete, validateAthlete} from "../../models/athlete";
 import EditableListItem from "../../components/EditableListItem";
 import {AthleteItem} from "../../components/AthleteItem";
 import {AthleteForm} from "../../forms/AthleteForm";
 import {Client, Method} from "../../client";
 import {WithID} from "../../models/models";
 import StartNumberPicker from "../../components/StartNumberPicker";
-import {Registration} from "../../models/registration";
+import {Registration, validateRegistration} from "../../models/registration";
 import {SingleRegistrationForm} from "../../forms/SingleRegistrationForm";
-import {Category, Discipline, EventConfig} from "../../models/event-config";
+import {Category, Discipline, EventConfig, validateEventConfig} from "../../models/event-config";
 import {ObjectId} from "bson";
+import {validateArray, extendWithId, extendArray} from "../../validation/validation-utils";
 
 
 const eventClient = new Client("/api/v1/event-config");
@@ -49,7 +50,7 @@ function EventAthleteTab(props: { active: boolean }) {
         show: boolean,
         index: number,
         source?: Athlete
-        id?: string
+        id?: ObjectId
     }>({
         show: false,
         index: -1,
@@ -62,7 +63,10 @@ function EventAthleteTab(props: { active: boolean }) {
     });
 
     useEffect(() => {
-        eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
+        eventClient.fetch<WithID<EventConfig>>(Method.GET, {
+            validation: extendWithId(validateEventConfig),
+            path: "63eea5bbc350bea3d7ada318"
+        })
             .then(data => {
                 setConfig(data)
             })
@@ -74,7 +78,9 @@ function EventAthleteTab(props: { active: boolean }) {
                     severity: "error"
                 })
             });
-        athleteClient.fetch<WithID<Athlete>[]>(Method.GET).then(data => {
+        athleteClient.fetch<WithID<Athlete>[]>(Method.GET, {
+            validation: extendArray(extendWithId(validateAthlete)),
+        }).then(data => {
             setAthletes(data)
         }).catch(err => {
             console.warn(err);
@@ -84,7 +90,9 @@ function EventAthleteTab(props: { active: boolean }) {
                 severity: "error"
             })
         });
-        registrationClient.fetch<WithID<Registration>[]>(Method.GET).then(data => {
+        registrationClient.fetch<WithID<Registration>[]>(Method.GET, {
+            validation: extendArray(extendWithId(validateRegistration)),
+        }).then(data => {
             setRegistrations(data)
         }).catch(err => {
             console.warn(err);
@@ -110,12 +118,15 @@ function EventAthleteTab(props: { active: boolean }) {
         show: false
     });
 
-    const onSaveAthlete = (athelete: Athlete, id: string, index: number) => {
+    const onSaveAthlete = (athelete: Athlete, id: ObjectId, index: number) => {
         if (index < 0) {
             // new
             const insert: WithID<Athlete> = athelete;
-            athleteClient.fetch<Athlete>(Method.POST, undefined, athelete, location => {
-                insert._id = location.substring(location.lastIndexOf('/') + 1)
+            athleteClient.fetch<Athlete>(Method.POST, {
+                body: athelete,
+                onLocation: location => {
+                    insert._id = new ObjectId(location.substring(location.lastIndexOf('/') + 1))
+                }
             }).then(() => {
                 setNotification({
                     show: true,
@@ -134,7 +145,10 @@ function EventAthleteTab(props: { active: boolean }) {
         } else {
             // edit
             const update: WithID<Athlete> = athelete;
-            athleteClient.fetch<Athlete>(Method.PUT, id, athelete).then(() => {
+            athleteClient.fetch<Athlete>(Method.PUT, {
+                path: id.toHexString(),
+                body: athelete
+            }).then(() => {
                 setNotification({
                     show: true,
                     message: "Athlet:in erfolgreich gespeichert",
@@ -159,7 +173,9 @@ function EventAthleteTab(props: { active: boolean }) {
     const onDeleteAthlete = (index: number) => {
         const athletesCopy = [...athletes];
         const remove = athletesCopy.splice(index, 1)[0];
-        athleteClient.fetch<Athlete>(Method.DELETE, remove._id).then(() => {
+        athleteClient.fetch<Athlete>(Method.DELETE, {
+            path: remove._id.toHexString()
+        }).then(() => {
             setNotification({
                 show: true,
                 message: "Athlet:in erfolgreich gelöscht",
@@ -183,16 +199,18 @@ function EventAthleteTab(props: { active: boolean }) {
     });
 
     const onStartNumberAssign = (athlete: WithID<Athlete>, startNumber?: number) => {
-        athleteClient.fetch<any>(Method.PUT, `${athlete._id}/start-number`, {startNumber})
-            .then(() => {
-                setNotification({
-                    show: true,
-                    message: "Startnummer erfolgreich zugeweisen",
-                    severity: "success"
-                });
-                athlete.startNumber = startNumber;
-                setAthletes([...athletes])
-            }).catch(err => {
+        athleteClient.fetch<any>(Method.PUT, {
+            path: `${athlete._id.toHexString()}/start-number`,
+            body: {startNumber}
+        }).then(() => {
+            setNotification({
+                show: true,
+                message: "Startnummer erfolgreich zugeweisen",
+                severity: "success"
+            });
+            athlete.startNumber = startNumber;
+            setAthletes([...athletes])
+        }).catch(err => {
             console.warn(err);
             setNotification({
                 show: true,
@@ -208,8 +226,11 @@ function EventAthleteTab(props: { active: boolean }) {
             disciplineName: discipline.name,
             categoryName: category?.name
         };
-        registrationClient.fetch<any>(Method.POST, undefined, insert, location => {
-            insert._id = location.substring(location.lastIndexOf('/') + 1)
+        registrationClient.fetch<any>(Method.POST, {
+            body: insert,
+            onLocation: location => {
+                insert._id = new ObjectId(location.substring(location.lastIndexOf('/') + 1))
+            }
         }).then(() => {
             setNotification({
                 show: true,
@@ -228,9 +249,11 @@ function EventAthleteTab(props: { active: boolean }) {
     }
 
     const onSingleRegistrationDelete = (singleRegistration: WithID<Registration>) => {
-        const index = registrations.findIndex(r => r._id === singleRegistration._id);
+        const index = registrations.findIndex(r => r._id.equals(singleRegistration._id));
         if (index >= 0) {
-            registrationClient.fetch<any>(Method.DELETE, singleRegistration._id).then(() => {
+            registrationClient.fetch<any>(Method.DELETE, {
+                path: singleRegistration._id.toHexString()
+            }).then(() => {
                 setNotification({
                     show: true,
                     message: "Einzelregistrierung erfolgreich gelöscht.",
@@ -273,16 +296,16 @@ function EventAthleteTab(props: { active: boolean }) {
                                               justifyContent="space-between"
                                               alignItems="center">
                             <div>Einzelanmeldung</div>
-                            {!edit ? undefined : <IconButton onClick={() => setSingleRegistrationForm({show: true, athlete})}>
-                                <Add color="primary"/>
-                            </IconButton>}
+                            {!edit ? undefined :
+                                <IconButton onClick={() => setSingleRegistrationForm({show: true, athlete})}>
+                                    <Add color="primary"/>
+                                </IconButton>}
                         </Box>}>
                             {registrations
                                 .filter(r => !r.groupName && r.athleteIds[0].equals(athlete._id))
-                                .map(r => (<Stack spacing={2}>
-                                    <div>{r.disciplineName}</div>
-                                    <div>{r.categoryName}</div>
-                                </Stack>))}
+                                .map(r => (<ListItem>
+                                    <Chip label={`${r.disciplineName}${r.categoryName ? ` / ${r.categoryName}` : undefined}`} />
+                                </ListItem>))}
                         </List>
                     </EditableListItem>
                 </ListItem>
@@ -306,7 +329,7 @@ function EventAthleteTab(props: { active: boolean }) {
             <DialogContent>
                 <SingleRegistrationForm disciplines={config.disciplines}
                                         onSave={(discipline, category) => onSingleRegistrationSave(singleRegistrationForm.athlete, discipline, category)}
-                                        onCancel={onSingleRegistrationFormClose} />
+                                        onCancel={onSingleRegistrationFormClose}/>
             </DialogContent>
         </Dialog>
     </Stack>);

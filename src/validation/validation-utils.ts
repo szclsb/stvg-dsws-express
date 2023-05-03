@@ -1,4 +1,4 @@
-import {Validation} from "../models/models";
+import {Validation, WithID} from "../models/models";
 import {ValidationError} from "./validation-error";
 import {DBRef, ObjectId} from "bson";
 
@@ -202,4 +202,28 @@ export async function validate<T>(validation: Validation<T>): Promise<T> {
         throw new ValidationError(errors)
     }
     return result as T;
+}
+
+
+export function extendWithId<T>(validation: (body?: any) => Promise<T>): (body?: any) => Promise<WithID<T>> {
+    return async (body?: any) => {
+        const t: WithID<T> = await validation(body);
+        t._id = await validateObjectId(body?._id);
+        return t;
+    };
+}
+
+export function extendArray<T>(validation: (body?: any) => Promise<T>, minSize?: number, maxSize?: number): (body?: any) => Promise<T[]> {
+    return async (body?: any) => {
+        if (body === undefined || body === null) {
+            return Promise.resolve(undefined);
+        } else if (!Array.isArray(body)) {
+            return Promise.reject(`is not an array`);
+        } else if (!!minSize && body.length < minSize) {
+            return Promise.reject(`must have at least ${minSize} elements`)
+        } else if (!!maxSize && body.length > maxSize) {
+            return Promise.reject(`must have at most ${maxSize} elements`)
+        }
+        return Promise.all(body.map(x => validation(x)));
+    };
 }

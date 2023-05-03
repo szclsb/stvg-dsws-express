@@ -1,7 +1,8 @@
-import {required, validate, validateInteger} from "../validation/validation-utils";
+import {required, validate, validateInteger, validateObjectId} from "../validation/validation-utils";
+import {ObjectId} from "bson";
 
 export type WithID<T> = T & {
-    _id?: string;
+    _id?: ObjectId;
 }
 
 export type Validation<T> = {

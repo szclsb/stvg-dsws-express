@@ -12,14 +12,19 @@ function EventPlanningTab(props: { active: boolean }) {
 
     useEffect(() => {
         if (props.active) {
-            planningClient.fetch<RunPlanning[]>(Method.GET, `app`)
+            planningClient.fetch<RunPlanning[]>(Method.GET, {
+                validation: body => Promise.resolve(body as RunPlanning[]),
+                path: `app`
+            })
                 .then(data => setPlannings(data))
                 .catch(err => console.warn(err));
         }
     }, [props])
 
     const onAutoPlanning = async () => {
-        planningClient.fetch<RunPlanning[]>(Method.POST, `auto`)
+        planningClient.fetch<RunPlanning[]>(Method.POST, {
+            path: `auto`
+        })
             .then(data => setPlannings(data))
             .catch(err => console.warn(err));
     }

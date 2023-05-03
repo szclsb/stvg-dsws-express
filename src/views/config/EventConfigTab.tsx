@@ -13,15 +13,16 @@ import {
     TextField
 } from "@mui/material";
 import {Add} from "@mui/icons-material";
-import {EventConfig, Category, Discipline} from "../../models/event-config";
+import {EventConfig, Category, Discipline, validateEventConfig} from "../../models/event-config";
 import {Client, Method} from "../../client";
 import {CategoryForm} from "../../forms/CategoryForm";
 import {DisciplineForm} from "../../forms/DisciplineForm";
 import {CategoryListItem} from "../../components/CategoryListItem";
 import {DisciplineListItem} from "../../components/DisciplineListItem";
 import '../../main.css';
-import {LocalDate} from "../../models/models";
+import {LocalDate, WithID} from "../../models/models";
 import LocalDatePicker from "../../components/LocalDatePicker";
+import {extendWithId} from "../../validation/validation-utils";
 
 const eventClient = new Client("/api/v1/event-config");
 
@@ -68,7 +69,10 @@ function EventConfigTab(props: { active: boolean }) {
     }, [props]);
 
     const fetchData = () => {
-        eventClient.fetch<EventConfig>(Method.GET, "63eea5bbc350bea3d7ada318")
+        eventClient.fetch<WithID<EventConfig>>(Method.GET, {
+            validation: extendWithId(validateEventConfig),
+            path: "63eea5bbc350bea3d7ada318"
+        })
             .then(data => {
                 setEventName(data.name);
                 setEventDate(data.date);
@@ -84,11 +88,14 @@ function EventConfigTab(props: { active: boolean }) {
         setEdit(false);
     }
     const onConfirm = () => {
-        eventClient.fetch<EventConfig>(Method.PUT, "63eea5bbc350bea3d7ada318", {
-            name: eventName,
-            date: eventDate,
-            tracks,
-            disciplines
+        eventClient.fetch<EventConfig>(Method.PUT, {
+            path: "63eea5bbc350bea3d7ada318",
+            body: {
+                name: eventName,
+                date: eventDate,
+                tracks,
+                disciplines
+            }
         }).then(_ => setNotification({
             show: true,
             message: "Änderungen erfolgreich gespeichert",

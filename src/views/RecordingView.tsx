@@ -6,6 +6,7 @@ import {displaySex, printTime, seq} from "../ui-utils";
 import {Client, Method} from "../client";
 import {useNavigate} from "react-router-dom";
 import '../main.css';
+import {extendArray} from "../validation/validation-utils";
 
 const planningClient = new Client("/api/v1/planning");
 const recordingClient = new Client("/api/v1/recordingClient");
@@ -41,7 +42,10 @@ function RecordingTab(props: { active: boolean, planningNumber: number, tracks: 
 
     useEffect(() => {
         if (props.active) {
-            planningClient.fetch<RunPlanning[]>(Method.GET, `app/group/${props.planningNumber}`)
+            planningClient.fetch<RunPlanning[]>(Method.GET, {
+                validation: (body: any) => Promise.resolve(body as RunPlanning[]),
+                path: `app/group/${props.planningNumber}`
+            })
                 .then(data => setPlanningGroup(data))
                 .catch(err => console.warn(err));
         }
@@ -107,7 +111,10 @@ function PlanningTab(props: { active: boolean, tracks: number }) {
 
     useEffect(() => {
         if (props.active) {
-            planningClient.fetch<RunPlanning[]>(Method.GET, `app`)
+            planningClient.fetch<RunPlanning[]>(Method.GET, {
+                validation: (body: any) => Promise.resolve(body as RunPlanning[]),
+                path: `app`
+            })
                 .then(data => setPlannings(data))
                 .catch(err => console.warn(err));
         }
