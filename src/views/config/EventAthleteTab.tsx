@@ -246,6 +246,7 @@ function EventAthleteTab(props: { active: boolean }) {
                 severity: "error"
             });
         });
+        onSingleRegistrationFormClose();
     }
 
     const onSingleRegistrationDelete = (singleRegistration: WithID<Registration>) => {
@@ -304,7 +305,8 @@ function EventAthleteTab(props: { active: boolean }) {
                             {registrations
                                 .filter(r => !r.groupName && r.athleteIds[0].equals(athlete._id))
                                 .map(r => (<ListItem>
-                                    <Chip label={`${r.disciplineName}${r.categoryName ? ` / ${r.categoryName}` : undefined}`} />
+                                    <Chip label={`${r.disciplineName}${r.categoryName ? ` / ${r.categoryName}` : undefined}`}
+                                          onDelete={() => onSingleRegistrationDelete(r)}/>
                                 </ListItem>))}
                         </List>
                     </EditableListItem>
