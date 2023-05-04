@@ -18,14 +18,19 @@ export class Client {
         validation?: (body: any) => Promise<T>,
         path?: string,
         body?: any,
+        headers?: HeadersInit,
         onLocation?: (url?: string) => any
     }): Promise<T> {
+        const apiKey = localStorage.getItem("api-key");
+        const headers = new Headers(options.headers);
+        headers.set("Accept", "application/json");
+        headers.set("Content-Type", "application/json");
+        if (apiKey) {
+            headers.set("X-Api-Key", apiKey);
+        }
         const effectiveUrl = !options.path ? this.rootUrl : `${this.rootUrl}/${options.path}`
         return fetch(effectiveUrl, {
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
+            headers,
             method,
             body: !options.body ? undefined : JSON.stringify(options.body)
         }).then(res => {

@@ -30,7 +30,7 @@ app.use(express.static(path.join(cwd, "public")));
 const apiKeyMiddleware = checkApiKey(config);
 datasource.connect(config).then(db => {
     // todo implement account and credential management using jwt
-    app.post('/login', (req, res) => {
+    app.post('/api/login', (req, res) => {
         const basicAuth = req.get('Authorization');
         if (basicAuth === undefined || !basicAuth.startsWith('Basic ')) {
             res.status(401).send();

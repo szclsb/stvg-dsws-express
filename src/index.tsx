@@ -11,11 +11,16 @@ import RecordingView from "./views/RecordingView";
 import RegisterView from "./views/RegisterView";
 import ResultsView from "./views/ResultsView";
 import EventView from "./views/config/EventView";
+import {LoginView} from "./views/LoginView";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <App />,
+        element: <LoginView />,
+    },
+    {
+        path: "/login",
+        element: <LoginView />,
     },
     {
         path: "/event",
