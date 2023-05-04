@@ -5,15 +5,13 @@ import {
     RouterProvider,
 } from "react-router-dom";
 import './index.css';
-import App from './views/App';
 import reportWebVitals from './reportWebVitals';
 import RecordingView from "./views/RecordingView";
 import RegisterView from "./views/RegisterView";
 import ResultsView from "./views/ResultsView";
 import EventView from "./views/config/EventView";
 import {LoginView} from "./views/LoginView";
-import {Box, IconButton, Stack} from "@mui/material";
-import {Logout} from "@mui/icons-material";
+import {Header} from "./components/Header";
 
 const router = createBrowserRouter([
     {
@@ -42,21 +40,10 @@ const router = createBrowserRouter([
     }
 ]);
 
-const logout = () => {
-    localStorage.removeItem('api-key');
-}
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-      <Box display="flex"
-           justifyContent="space-between"
-           alignItems="center">
-          <div>De schnellst Wasserschlössler</div>
-          <IconButton onClick={logout}>
-              <Logout color="primary"/>
-          </IconButton>
-      </Box>
+      <Header title="De schnellst Wasserschlössler" />
       <RouterProvider router={router} />
   </React.StrictMode>
 );
