@@ -29,6 +29,22 @@ app.use(express.static(path.join(cwd, "public")));
 
 const apiKeyMiddleware = checkApiKey(config);
 datasource.connect(config).then(db => {
+    // todo implement account and credential management using jwt
+    app.post('/login', (req, res) => {
+        const basicAuth = req.get('Authorization');
+        if (basicAuth === undefined || !basicAuth.startsWith('Basic ')) {
+            res.status(401).send();
+        } else {
+            const [user, password] = Buffer.from(basicAuth.substring(6), 'base64').toString('utf8').split(":");
+            if (config.user === user && config.secret === password) {
+                res.status(200).json({
+                    apiKey: config.apiKey  // fixme implement jwt auth
+                });
+            } else {
+                res.status(403).send();
+            }
+        }
+    });
     app.use(eventConfigPath, apiKeyMiddleware, initEventConfigRoute(db));
     app.use(athletePath, apiKeyMiddleware, initAthleteRoute(db));
     // app.use(disciplinePath, apiKeyMiddleware, initDisciplineRoute(db));
