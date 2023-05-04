@@ -4,7 +4,10 @@ export interface Config {
     dbUser: string,
     dbPassword: string,
     dbName: string,
+    apiKeyHeader: string,
+    apiKey: string,
     secret: string
+    user: string,
 }
 
 export function loadConfig(json: any): Config {
@@ -18,7 +21,10 @@ export function loadConfig(json: any): Config {
         dbUser: readValue(json.dbUser),
         dbPassword: readValue(json.dbPassword),
         dbName: readValue(json.dbName),
+        apiKeyHeader: readValue(json.apiKeyHeader),
+        apiKey: readValue(json.apiKey),
         secret: readValue(json.secret),
+        user: readValue(json.user),
     }
 }
 

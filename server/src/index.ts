@@ -8,6 +8,7 @@ import {path as athletePath, init as initAthleteRoute} from "./routes/api/athlet
 import {path as registrationPath, init as initRegistrationRoute} from "./routes/api/registration-route";
 import {path as eventConfigPath, init as initEventConfigRoute} from "./routes/api/event-config-route";
 import {path as planningPath, init as initPlanningRoute} from "./routes/api/planning-route";
+import {checkApiKey} from "./auth";
 import * as path from "path";
 
 const cwd = path.resolve();
@@ -26,13 +27,13 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(cwd, "build")));
 app.use(express.static(path.join(cwd, "public")));
 
-
+const apiKeyMiddleware = checkApiKey(config);
 datasource.connect(config).then(db => {
-    app.use(athletePath, initAthleteRoute(db));
-    // app.use(disciplinePath, initDisciplineRoute(db));
-    app.use(registrationPath, initRegistrationRoute(db));
-    app.use(eventConfigPath, initEventConfigRoute(db));
-    app.use(planningPath, initPlanningRoute(db));
+    app.use(eventConfigPath, apiKeyMiddleware, initEventConfigRoute(db));
+    app.use(athletePath, apiKeyMiddleware, initAthleteRoute(db));
+    // app.use(disciplinePath, apiKeyMiddleware, initDisciplineRoute(db));
+    app.use(registrationPath, apiKeyMiddleware, initRegistrationRoute(db));
+    app.use(planningPath, apiKeyMiddleware, initPlanningRoute(db));
 
     // react frontend
     app.use((req, res, next) => {

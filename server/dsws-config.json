@@ -4,5 +4,8 @@
   "dbUser": "$ENV:DB_USER",
   "dbPassword": "$ENV:DB_PASSWORD",
   "dbName": "dsws",
+  "apiKeyHeader": "X-Api-Key",
+  "apiKey": "$ENV:API_KEY",
+  "user": "$ENV:USER",
   "secret": "$ENV:SECRET"
 }

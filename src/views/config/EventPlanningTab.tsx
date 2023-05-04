@@ -120,6 +120,7 @@ function EventPlanningTab(props: { active: boolean }) {
                 <DialogTitle>Planungsgruppe</DialogTitle>
                 <DialogContent>
                     <PlanningForm year={config?.date.year}
+                                  tracks={config?.tracks}
                                   disciplines={config?.disciplines}
                                   registrations={[]}
                                   onSave={onPlanningsSave}

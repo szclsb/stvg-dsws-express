@@ -8,14 +8,13 @@ export interface Group {
 
 export interface Run {
     disciplineName: string;
-    categoryName: string | undefined;
-    groupName: string | undefined;
+    categoryName?: string;
+    groupName?: string;
     participants: {
         athlete: Athlete,
         age: number
     }[];
 }
-
 
 export interface RunPlanning extends Run {
     startTime: LocalTime;
