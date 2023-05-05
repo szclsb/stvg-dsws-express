@@ -1,11 +1,11 @@
 {
-  "port": "$ENV:PORT",
-  "dbConnection": "$ENV:DB_CONNECTION",
-  "dbUser": "$ENV:DB_USER",
-  "dbPassword": "$ENV:DB_PASSWORD",
+  "port": "$PORT",
+  "dbConnection": "$DB_CONNECTION",
+  "dbUser": "$DB_USER",
+  "dbPassword": "$DB_PASSWORD",
   "dbName": "dsws",
   "apiKeyHeader": "X-Api-Key",
-  "apiKey": "$ENV:API_KEY",
-  "user": "$ENV:USER",
-  "secret": "$ENV:SECRET"
+  "apiKey": "$API_KEY",
+  "user": "$USER",
+  "secret": "$SECRET"
 }

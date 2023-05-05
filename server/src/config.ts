@@ -29,8 +29,8 @@ export function loadConfig(json: any): Config {
 }
 
 function readValue(value?: string): string | undefined {
-    if (value.startsWith('$ENV:')) {
-        return process.env[value.substring(5)];
+    if (value.startsWith('$')) {
+        return process.env[value];
     }
     return value;
 }

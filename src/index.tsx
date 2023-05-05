@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {createContext} from 'react';
 import ReactDOM from 'react-dom/client';
 import {
     createBrowserRouter,
@@ -12,40 +12,52 @@ import ResultsView from "./views/ResultsView";
 import EventView from "./views/config/EventView";
 import {LoginView} from "./views/LoginView";
 import {Header} from "./components/Header";
+import {AuthProvider, RequireAuth} from "./auth";
+import WelcomeView from "./views/WelcomeView";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <LoginView />,
+        element: <WelcomeView/>,
     },
     {
         path: "/login",
-        element: <LoginView />,
+        element: <LoginView/>,
     },
     {
         path: "/event",
-        element: <EventView />
+        element: <RequireAuth>
+            <EventView/>
+        </RequireAuth>
     },
     {
         path: "/admin",
-        element: <RecordingView />
+        element: <RequireAuth>
+            <RecordingView/>
+        </RequireAuth>
     },
     {
         path: "/register",
-        element: <RegisterView />
+        element: <RequireAuth>
+            <RegisterView/>
+        </RequireAuth>
     },
     {
         path: "/results",
-        element: <ResultsView />
+        element: <RequireAuth>
+            <ResultsView/>
+        </RequireAuth>
     }
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-      <Header title="De schnellst Wasserschlössler" />
-      <RouterProvider router={router} />
-  </React.StrictMode>
+    <React.StrictMode>
+        <AuthProvider>
+            <Header title="De schnellst Wasserschlössler"/>
+            <RouterProvider router={router}/>
+        </AuthProvider>
+    </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
