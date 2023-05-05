@@ -1,0 +1,11 @@
+{
+  "port": "$PORT",
+  "dbConnection": "$DB_CONNECTION",
+  "dbUser": "$DB_USER",
+  "dbPassword": "$DB_PASSWORD",
+  "dbName": "dsws",
+  "apiKeyHeader": "X-Api-Key",
+  "apiKey": "$API_KEY",
+  "user": "$USER",
+  "secret": "$SECRET"
+}
