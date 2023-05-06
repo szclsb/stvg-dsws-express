@@ -36,6 +36,7 @@ function readValue(value?: string): string | undefined {
         if (!envVar) {
             console.warn(`Missing env var ${envVar}`);
         }
+        return envVar
     }
     return value;
 }
