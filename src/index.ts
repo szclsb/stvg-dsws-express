@@ -53,11 +53,6 @@ datasource.connect(config).then(db => {
     app.use(registrationPath, apiKeyMiddleware, initRegistrationRoute(db));
     app.use(planningPath, apiKeyMiddleware, initPlanningRoute(db));
 
-    // react frontend
-    // app.use((req, res, next) => {
-    //     res.sendFile(path.join(cwd, "build", "index.html"));
-    // });
-
     const server = app.listen(config.port, () => {
         console.log(`server started at http://localhost:${config.port}`);
     });
