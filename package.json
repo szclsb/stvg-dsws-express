@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "tsc",
-    "start": "node ./dist/src/index.js"
+    "postinstall": "tsc",
+    "start": "node dist/src/index.js"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
