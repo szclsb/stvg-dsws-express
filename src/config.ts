@@ -11,7 +11,9 @@ export interface Config {
 }
 
 export function loadConfig(json: any): Config {
+    console.log("parsing configuration.")
     if (!json.dbConnection || !json.dbUser || !json.dbPassword || !json.dbName || !json.secret) {
+        console.error("invalid configuration: missing database parameters.")
         throw Error("invalid configuration: missing database parameters");
     }
     const port = readValue(json.port) ?? "8080";
@@ -30,7 +32,10 @@ export function loadConfig(json: any): Config {
 
 function readValue(value?: string): string | undefined {
     if (value.startsWith('$ENV:')) {
-        return process.env[value.substring(5)];
+        const envVar = process.env[value.substring(5)];
+        if (!envVar) {
+            console.warn(`Missing env var ${envVar}`);
+        }
     }
     return value;
 }
