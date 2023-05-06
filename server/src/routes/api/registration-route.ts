@@ -4,12 +4,14 @@ import {Registration, validateRegistration} from "../../../../src/models/registr
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
 import {validateArray} from "../../../../src/validation/validation-utils";
+import cors from "cors";
 
 export const collectionName = 'registrations';
 export const path = '/api/v1/registrations';
 
 export function init(db: Db): Router {
     const router = express.Router();
+    // router.use(cors())
     const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {

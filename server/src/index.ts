@@ -3,6 +3,7 @@ import {Datasource} from "./datasource";
 import {loadConfig} from "./config";
 import * as json from '../dsws-config.json';
 import bodyParser from "body-parser";
+import cors from "cors"
 import {path as athletePath, init as initAthleteRoute} from "./routes/api/athlete-route";
 // import {path as disciplinePath, init as initDisciplineRoute} from "./routes/api/discipline-route";
 import {path as registrationPath, init as initRegistrationRoute} from "./routes/api/registration-route";
@@ -18,14 +19,15 @@ const datasource = new Datasource();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE');
-    next();
-});
-app.use(express.static(path.join(cwd, "build")));
-app.use(express.static(path.join(cwd, "public")));
+app.use(cors());
+// app.use((req, res, next) => {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Api-Key");
+//     res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, GET, DELETE, OPTIONS');
+//     next();
+// });
+// app.use(express.static(path.join(cwd, "build")));
+// app.use(express.static(path.join(cwd, "public")));
 
 const apiKeyMiddleware = checkApiKey(config);
 datasource.connect(config).then(db => {
@@ -52,9 +54,9 @@ datasource.connect(config).then(db => {
     app.use(planningPath, apiKeyMiddleware, initPlanningRoute(db));
 
     // react frontend
-    app.use((req, res, next) => {
-        res.sendFile(path.join(cwd, "build", "index.html"));
-    });
+    // app.use((req, res, next) => {
+    //     res.sendFile(path.join(cwd, "build", "index.html"));
+    // });
 
     const server = app.listen(config.port, () => {
         console.log(`server started at http://localhost:${config.port}`);

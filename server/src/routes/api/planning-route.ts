@@ -9,12 +9,14 @@ import {collectionName as configCollectionName} from "./event-config-route"
 import {collectionName as registrationCollectionName} from "./registration-route"
 import {collectionName as athleteCollectionName} from "./athlete-route"
 import {RunPlanning} from "../../../../src/models/dto";
+import cors from "cors";
 
 export const collectionName = 'plannings';
 export const path = '/api/v1/planning';
 
 export function init(db: Db): Router {
     const router = express.Router();
+    // router.use(cors())
     const collection = db.collection(collectionName);
 
     router.post("/auto", (req, res) => {

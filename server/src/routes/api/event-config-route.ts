@@ -3,6 +3,7 @@ import {ObjectID} from "bson";
 import {validateEventConfig} from "../../../../src/models/event-config";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
+import cors from "cors";
 
 
 export const collectionName = 'event-config';
@@ -10,6 +11,7 @@ export const path = '/api/v1/event-config';
 
 export function init(db: Db): Router {
     const router = express.Router();
+    // router.use(cors())
     const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {

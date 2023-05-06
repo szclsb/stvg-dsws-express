@@ -5,6 +5,7 @@ import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
 import {validateArray, validateInteger} from "../../../../src/validation/validation-utils";
 import {Registration, validateRegistration} from "../../../../src/models/registration";
+import cors from "cors";
 
 
 export const collectionName = 'athletes';
@@ -12,6 +13,7 @@ export const path = '/api/v1/athletes';
 
 export function init(db: Db): Router {
     const router = express.Router();
+    // router.use(cors())
     const collection = db.collection(collectionName);
 
     router.post("/", (req, res) => {
