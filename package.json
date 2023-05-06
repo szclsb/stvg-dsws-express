@@ -4,7 +4,6 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && tsc && react-scripts build",
-    "prestart": "npm run build",
     "start": "node ./dist/server/src/index.js",
     "start-app": "react-scripts start",
     "test": "react-scripts test",
