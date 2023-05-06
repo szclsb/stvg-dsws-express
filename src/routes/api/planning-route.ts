@@ -1,14 +1,14 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {Registration, validateRegistration} from "../../../../src/models/registration";
+import {Registration, validateRegistration} from "../../models/registration";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
-import {validateArray} from "../../../../src/validation/validation-utils";
-import {validatePlanning} from "../../../../src/models/run";
+import {validateArray} from "../../validation/validation-utils";
+import {validatePlanning} from "../../models/run";
 import {collectionName as configCollectionName} from "./event-config-route"
 import {collectionName as registrationCollectionName} from "./registration-route"
 import {collectionName as athleteCollectionName} from "./athlete-route"
-import {RunPlanning} from "../../../../src/models/dto";
+import {RunPlanning} from "../../models/dto";
 import cors from "cors";
 
 export const collectionName = 'plannings';

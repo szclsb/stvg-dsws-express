@@ -1,10 +1,10 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {validateAthlete} from "../../../../src/models/athlete";
+import {validateAthlete} from "../../models/athlete";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
-import {validateArray, validateInteger} from "../../../../src/validation/validation-utils";
-import {Registration, validateRegistration} from "../../../../src/models/registration";
+import {validateArray, validateInteger} from "../../validation/validation-utils";
+import {Registration, validateRegistration} from "../../models/registration";
 import cors from "cors";
 
 
