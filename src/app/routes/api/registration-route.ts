@@ -1,5 +1,5 @@
 import {Db, WithId} from "mongodb";
-import {ObjectID} from "bson";
+import {ObjectId, ObjectID} from "bson";
 import {
     Registration,
     validatePerformance,
@@ -34,7 +34,24 @@ export function init(db: Db): Router {
             })).catch(errorCallback(res));
     });
     router.get("/", (req, res) => {
-        collection.aggregate([]).toArray().then((doc: WithId<Document>[]) => {
+        const match: any = {}
+        const disciplineName = req.query.discipline;
+        if (disciplineName) {
+            match['disciplineName'] = disciplineName as string
+        }
+        const categoryName = req.query.category;
+        if (categoryName) {
+            match['categoryName'] = categoryName as string;
+        }
+        const planningId = req.query.planning;
+        if (planningId) {
+            match['planning.planningId'] = ObjectId.createFromHexString(planningId as string);
+        }
+        collection.aggregate([
+            {
+                $match: match
+            }
+        ]).toArray().then((doc: WithId<Document>[]) => {
             res.status(200)
                 .json(doc)
         }).catch(errorCallback(res));
