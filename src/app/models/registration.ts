@@ -41,7 +41,8 @@ export async function validateRegistration(body: any): Promise<Registration> {
         athleteIds: validateArray<ObjectID>(body.athleteIds?.map((athleteId: any) =>
             validateObjectId(athleteId))).then(required),
         groupName: validateText(body.groupName),
-        performance: validatePerformance(body.performance)
+        planning: !body.planning ? undefined : validateRegistrationPlanning(body.planning),
+        performance: !body.performance ? undefined : validatePerformance(body.performance)
     });
 }
 
