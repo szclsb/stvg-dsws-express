@@ -36,6 +36,14 @@ export function init(db: Db): Router {
                 .json(doc)
         }).catch(errorCallback(res));
     });
+    router.get("/planningNumber/:pn", (req, res) => {
+        collection.findOne({
+            planningNumber: Number.parseInt(req.params.pn as string, 10)
+        }).then((doc: WithId<Document>) => {
+            res.status(200)
+                .json(doc)
+        }).catch(errorCallback(res));
+    });
     router.get("/:id", (req, res) => {
         collection.findOne({
             _id: ObjectID.createFromHexString(req.params.id as string)

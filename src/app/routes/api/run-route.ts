@@ -1,5 +1,5 @@
 import {Db, WithId} from "mongodb";
-import {ObjectID} from "bson";
+import {ObjectId, ObjectID} from "bson";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
 import {validateArray} from "../../validation/validation-utils";
@@ -37,7 +37,18 @@ export function init(db: Db): Router {
         }).catch(errorCallback(res));
     });
     router.get("/", (req, res) => {
-        collection.aggregate([]).toArray().then((doc: WithId<Document>[]) => {
+        const match: any = {}
+        const planningId= req.query.planning;
+        if (planningId) {
+            match.planningId = ObjectId.createFromHexString(planningId as string);
+        }
+        const registrationId = req.query.registration;
+        if (registrationId) {
+            match.registrationId = ObjectId.createFromHexString(registrationId as string);
+        }
+        collection.aggregate([{
+            $match: match
+        }]).toArray().then((doc: WithId<Document>[]) => {
             res.status(200)
                 .json(doc)
         }).catch(errorCallback(res));
