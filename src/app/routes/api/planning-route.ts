@@ -10,7 +10,7 @@ import {collectionName as athleteCollectionName} from "./athlete-route"
 import cors from "cors";
 
 export const collectionName = 'planning';
-export const path = '/api/v1/planning';
+export const path = '/api/v1/plannings';
 
 export function init(db: Db): Router {
     const router = express.Router();

@@ -15,7 +15,7 @@ export interface Performance {
 }
 
 export interface Run {
-    runGroupId: ObjectId
+    planningId: ObjectId
     registrationId: ObjectId;
     beginTrack: number;
     endTrack: number;
@@ -24,7 +24,7 @@ export interface Run {
 
 export async function validateRun(body: any): Promise<Run> {
     return await validate<Run>({
-        runGroupId: validateObjectId(body.runGroupId).then(required),
+        planningId: validateObjectId(body.planningId).then(required),
         registrationId: validateObjectId(body.registrationId).then(required),
         beginTrack: validateInteger(body.beginTrack, 0).then(required),
         endTrack: validateInteger(body.endTrack, 0).then(required),

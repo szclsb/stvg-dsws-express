@@ -7,7 +7,7 @@ import cors from "cors";
 import {Run, validatePerformance, validateRun} from "../../models/run";
 
 export const collectionName = 'run';
-export const path = '/api/v1/run';
+export const path = '/api/v1/runs';
 
 export function init(db: Db): Router {
     const router = express.Router();
