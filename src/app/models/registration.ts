@@ -31,7 +31,7 @@ export interface RegistrationPlanning {
 
 export interface Performance {
     state: RunState;
-    time: number;
+    time?: number;
 }
 
 export async function validateRegistration(body: any): Promise<Registration> {
@@ -57,6 +57,6 @@ export async function validateRegistrationPlanning(body: any): Promise<Registrat
 export async function validatePerformance(body: any): Promise<Performance> {
     return await validate<Performance>({
         state: validateIn<RunState>(runStates, body.state).then(required),
-        time: validateNumber(body.time, 0).then(required)
+        time: validateNumber(body.time, 0)
     });
 }
