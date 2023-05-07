@@ -1,6 +1,11 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {Registration, validateRegistration} from "../../models/registration";
+import {
+    Registration,
+    validatePerformance,
+    validateRegistration,
+    validateRegistrationPlanning
+} from "../../models/registration";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
 import {validateArray} from "../../validation/validation-utils";
@@ -40,6 +45,46 @@ export function init(db: Db): Router {
         }).then((doc: WithId<Document>) => {
             res.status(200)
                 .json(doc)
+        }).catch(errorCallback(res));
+    });
+    router.put("/:id/planning/set", (req, res) => {
+        validateRegistrationPlanning(req.body).then(planning => {
+            collection.findOneAndUpdate({
+                _id: ObjectID.createFromHexString(req.params.id as string)
+            }, {
+                $set: {planning}
+            }).then(() => {
+                res.status(204).send();
+            })
+        }).catch(errorCallback(res));
+    });
+    router.put("/:id/planning/unset", (req, res) => {
+        collection.findOneAndUpdate({
+            _id: ObjectID.createFromHexString(req.params.id as string)
+        }, {
+            $unset: {planning: ""}
+        }).then(() => {
+            res.status(204).send();
+        }).catch(errorCallback(res));
+    });
+    router.put("/:id/performance/set", (req, res) => {
+        validatePerformance(req.body).then(performance => {
+            collection.findOneAndUpdate({
+                _id: ObjectID.createFromHexString(req.params.id as string)
+            }, {
+                $set: {performance}
+            }).then(() => {
+                res.status(204).send();
+            })
+        }).catch(errorCallback(res));
+    });
+    router.put("/:id/performance/unset", (req, res) => {
+        collection.findOneAndUpdate({
+            _id: ObjectID.createFromHexString(req.params.id as string)
+        }, {
+            $unset: {performance: ""}
+        }).then(() => {
+            res.status(204).send();
         }).catch(errorCallback(res));
     });
     router.put("/:id", (req, res) => {
