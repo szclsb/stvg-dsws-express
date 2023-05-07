@@ -1,17 +1,15 @@
 import {Db, WithId} from "mongodb";
 import {ObjectID} from "bson";
-import {Registration, validateRegistration} from "../../models/registration";
 import {errorCallback} from "../../utils/route-utils"
 import express, {Request, Router} from "express";
 import {validateArray} from "../../validation/validation-utils";
-import {validatePlanning} from "../../models/run";
+import {Planning, validatePlanning} from "../../models/planning";
 import {collectionName as configCollectionName} from "./event-config-route"
 import {collectionName as registrationCollectionName} from "./registration-route"
 import {collectionName as athleteCollectionName} from "./athlete-route"
-import {RunPlanning} from "../../models/dto";
 import cors from "cors";
 
-export const collectionName = 'plannings';
+export const collectionName = 'planning';
 export const path = '/api/v1/planning';
 
 export function init(db: Db): Router {
@@ -19,91 +17,15 @@ export function init(db: Db): Router {
     // router.use(cors())
     const collection = db.collection(collectionName);
 
-    router.post("/auto", (req, res) => {
-        // auto planning
-        const regCollection = db.collection(registrationCollectionName);
-        const registration = regCollection.aggregate([]);
-
-        // todo planning per discipline category.
-
-        res.status(204).send();
-    });
-    router.get("/app", (req, res) => {
-        const regCollection = db.collection(registrationCollectionName);
-        const registration = regCollection.aggregate([]);
-
-        // todo all RegistrationPlanning.
-        res.status(200).json([
-            testPlanning(0),
-            testPlanning(1),
-            testPlanning(3),
-        ]);
-    });
-    router.get("/app/group/:planningNumber", (req, res) => {
-        const planningNumber = Number.parseInt(req.params.planningNumber as string, 10);
-        if (Number.isNaN(planningNumber) || planningNumber < 0) {
-            res.status(400).send("Invalid planning number");
-        } else {
-            // todo test.
-            const plannings = collection.aggregate([
-                { $match: {planningNumber} },
-                {
-                    $lookup: {
-                        from: registrationCollectionName,
-                        localField: "registrationId",
-                        foreignField: "_id",
-                        pipeline: [
-                            {
-                                $lookup: {
-                                    from: configCollectionName,
-                                    localField: "disciplineId",
-                                    foreignField: "_id",
-                                    pipeline: [
-                                        {
-                                            $project: {name: 1}
-                                        }
-                                    ],
-                                    as: "disciplineName"
-                                },
-                            },
-                            {
-                                $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "disciplineName", 0 ] }, "$$ROOT" ] } }
-                            },
-                            {
-                                $lookup: {
-                                    from: athleteCollectionName,
-                                    localField: "athleteIds",
-                                    foreignField: "_id",
-                                    pipeline: [
-                                        {
-                                            $project: {_id: 0}
-                                        }
-                                    ],
-                                    as: "athletes"
-                                }
-                            }
-                        ],
-                        as: "registration"
-                    }
-                },
-                {
-                    $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "registration", 0 ] }, "$$ROOT" ] } }
-                }
-            ]);
-            res.status(200).json(plannings);
-        }
-    });
-
     router.post("/", (req, res) => {
         validatePlanning(req.body).then(planning => {
-            // todo validate references
             collection.insertOne(planning).then(result => {
                 res.setHeader('Location', `${path}/${result.insertedId}`).status(201).send();
             })
         }).catch(errorCallback(res));
     });
     router.post("/many", (req, res) => {
-        validateArray<Registration>(req.body?.map((reg: any) => validatePlanning(reg)))
+        validateArray<Planning>(req.body?.map((planning: any) => validatePlanning(planning)))
             .then(plannings => collection.insertMany(plannings).then(result => {
                 res.setHeader('Location', Object.values(result.insertedIds).map(id => `${path}/${id}`)).status(201).send();
             })).catch(errorCallback(res));
@@ -145,28 +67,77 @@ export function init(db: Db): Router {
     return router;
 }
 
-
-// fixme
-function testPlanning(planningNumber: number): RunPlanning {
-    const track = (planningNumber % 4) + 1;
-    return {
-        disciplineName: "test",
-        categoryName: undefined,
-        beginTrack: track,
-        endTrack: track,
-        startTime: {hour: 10, minute: 0},
-        endTime: {hour: 10, minute: 10},
-        groupName: undefined,
-        participants: [
-            {
-                athlete: {
-                    firstName: 'Claudio',
-                    lastName: 'Seitz',
-                    sex: 'MALE',
-                    yearOfBirth: 1993
-                },
-                age: 30
-            }
-        ]
-    }
-}
+// router.post("/auto", (req, res) => {
+//     // auto planning
+//     const regCollection = db.collection(registrationCollectionName);
+//     const registration = regCollection.aggregate([]);
+//
+//     // todo planning per discipline category.
+//
+//     res.status(204).send();
+// });
+// router.get("/app", (req, res) => {
+//     const regCollection = db.collection(registrationCollectionName);
+//     const registration = regCollection.aggregate([]);
+//
+//     // todo all RegistrationPlanning.
+//     res.status(200).json([
+//         testPlanning(0),
+//         testPlanning(1),
+//         testPlanning(3),
+//     ]);
+// });
+// router.get("/app/group/:planningNumber", (req, res) => {
+//     const planningNumber = Number.parseInt(req.params.planningNumber as string, 10);
+//     if (Number.isNaN(planningNumber) || planningNumber < 0) {
+//         res.status(400).send("Invalid planning number");
+//     } else {
+//         // todo test.
+//         const plannings = collection.aggregate([
+//             { $match: {planningNumber} },
+//             {
+//                 $lookup: {
+//                     from: registrationCollectionName,
+//                     localField: "registrationId",
+//                     foreignField: "_id",
+//                     pipeline: [
+//                         {
+//                             $lookup: {
+//                                 from: configCollectionName,
+//                                 localField: "disciplineId",
+//                                 foreignField: "_id",
+//                                 pipeline: [
+//                                     {
+//                                         $project: {name: 1}
+//                                     }
+//                                 ],
+//                                 as: "disciplineName"
+//                             },
+//                         },
+//                         {
+//                             $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "disciplineName", 0 ] }, "$$ROOT" ] } }
+//                         },
+//                         {
+//                             $lookup: {
+//                                 from: athleteCollectionName,
+//                                 localField: "athleteIds",
+//                                 foreignField: "_id",
+//                                 pipeline: [
+//                                     {
+//                                         $project: {_id: 0}
+//                                     }
+//                                 ],
+//                                 as: "athletes"
+//                             }
+//                         }
+//                     ],
+//                     as: "registration"
+//                 }
+//             },
+//             {
+//                 $replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "registration", 0 ] }, "$$ROOT" ] } }
+//             }
+//         ]);
+//         res.status(200).json(plannings);
+//     }
+// });
