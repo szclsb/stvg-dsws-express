@@ -9,6 +9,7 @@ import {path as eventConfigPath, init as initEventConfigRoute} from "./routes/ap
 import {path as athletePath, init as initAthleteRoute} from "./routes/api/athlete-route";
 import {path as registrationPath, init as initRegistrationRoute} from "./routes/api/registration-route";
 import {path as planningPath, init as initPlanningRoute} from "./routes/api/planning-route";
+import {path as rankingPath, init as initRankingRoute} from "./routes/api/ranking-route";
 import {checkApiKey} from "./auth";
 import * as path from "path";
 
@@ -52,7 +53,7 @@ datasource.connect(config).then(db => {
     app.use(athletePath, apiKeyMiddleware, initAthleteRoute(db));
     app.use(registrationPath, apiKeyMiddleware, initRegistrationRoute(db));
     app.use(planningPath, apiKeyMiddleware, initPlanningRoute(db));
-    // app.use(rankingPath, apiKeyMiddleware, initRankingRoute(db));
+    app.use(rankingPath, apiKeyMiddleware, initRankingRoute(db));
 
     const server = app.listen(config.port, () => {
         console.log(`server started at http://localhost:${config.port}`);

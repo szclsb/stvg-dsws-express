@@ -17,7 +17,7 @@ export type RunState = typeof runStates[number];
 export interface Registration {
     disciplineName: string;
     categoryName?: string;
-    athleteIds: ObjectID[];
+    athleteIds: ObjectId[];
     groupName?: string;
     planning?: RegistrationPlanning;
     performance?: Performance;
