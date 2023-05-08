@@ -5,9 +5,23 @@ import express, {Request, Router} from "express";
 import {collectionName as configCollectionName} from "./event-config-route";
 import {collectionName as athleteCollectionName} from "./athlete-route";
 import {collectionName as registrationCollectionName} from "./registration-route";
-import {ObjectId} from "bson";
+import {Ranking, Result} from "../../models/ranking";
 
 export const path = '/api/v1/ranking';
+
+function toRanking(results: Result[]): Ranking[] {
+    let time = 0;
+    let rank = 0;
+    return results.map(result => {
+        if (result.time > time) {
+            rank += 1;
+            time = result.time;
+        }
+        return Object.assign({
+            rank
+        }, result);
+    });
+}
 
 export function init(db: Db): Router {
     const router = express.Router();
@@ -28,7 +42,7 @@ export function init(db: Db): Router {
         if (categoryName) {
             match['categoryName'] = categoryName as string;
         }
-        registrationCollection.aggregate([
+        registrationCollection.aggregate<Result>([
             {
                 $match: match
             },
@@ -69,9 +83,9 @@ export function init(db: Db): Router {
                     time: 1
                 }
             }
-        ]).toArray().then((doc: WithId<Document>[]) => {
-            res.status(200)
-                .json(doc)
+        ]).toArray().then(docs => {
+            const rankings = toRanking(docs);
+            res.status(200).json(rankings);
         }).catch(errorCallback(res));
     });
 
